@@ -123,11 +123,13 @@ export function MedicationChecklist({
       const res = await fetch("/api/ai/description", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: `Опиши кратко: что такое ${medName}, для чего назначают, побочные эффекты.` }),
+        body: JSON.stringify({ name: medName }),
       });
       const data = await res.json();
-      if (data.text) {
-        setAiDescription(data.text);
+      if (data.purpose) {
+        setAiDescription(data.purpose);
+      } else if (data.error) {
+        setAiDescription("Не удалось получить описание: " + data.error);
       } else {
         setAiDescription("Не удалось получить описание.");
       }

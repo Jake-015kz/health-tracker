@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { useAuth, useDataStore } from "@/features/auth";
 import { LogMetrics } from "@/features/log-metrics";
@@ -13,6 +13,14 @@ import styles from "./page.module.css";
 
 type TabId = "overview" | "log" | "medications" | "report" | "export";
 
+const HASH_TO_TAB: Record<string, TabId> = {
+  "": "overview",
+  log: "log",
+  medications: "medications",
+  report: "report",
+  export: "export",
+};
+
 const TABS: { id: TabId; label: string }[] = [
   { id: "overview", label: "Обзор" },
   { id: "log", label: "Новое измерение" },
@@ -21,10 +29,35 @@ const TABS: { id: TabId; label: string }[] = [
   { id: "export", label: "Экспорт" },
 ];
 
+function getTabFromHash(): TabId {
+  if (typeof window === "undefined") return "overview";
+  const hash = window.location.hash.replace("#", "");
+  return HASH_TO_TAB[hash] ?? "overview";
+}
+
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const { user } = useAuth();
   const store = useDataStore(user);
+
+  useEffect(() => {
+    setActiveTab(getTabFromHash());
+
+    const handleHashChange = () => {
+      setActiveTab(getTabFromHash());
+    };
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
+  const handleTabClick = (tabId: TabId) => {
+    setActiveTab(tabId);
+    if (tabId === "overview") {
+      window.history.replaceState(null, "", "/dashboard");
+    } else {
+      window.history.replaceState(null, "", `/dashboard#${tabId}`);
+    }
+  };
 
   return (
     <main className={styles.page}>
@@ -33,7 +66,7 @@ export default function DashboardPage() {
           <button
             key={tab.id}
             className={`${styles.tab} ${activeTab === tab.id ? styles.tabActive : ""}`}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => handleTabClick(tab.id)}
           >
             {tab.label}
           </button>
