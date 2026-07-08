@@ -4,10 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-
-import { Button } from "@/shared/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
-import { Input } from "@/shared/ui/input";
+import { Heart, Mail, Lock } from "lucide-react";
 
 import styles from "./page.module.css";
 
@@ -40,37 +37,55 @@ export default function LoginPage() {
 
   return (
     <main className={styles.page}>
-      <Card>
-        <CardHeader>
-          <CardTitle>Вход</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form className={styles.form} onSubmit={handleLogin}>
-            <Input
-              label="Email"
+      <div className={styles.glow} />
+      <div className={styles.card}>
+        <div className={styles.header}>
+          <Heart className={styles.logoIcon} />
+          <h1 className={styles.title}>Вход</h1>
+          <p className={styles.subtitle}>Войдите в свой аккаунт</p>
+        </div>
+
+        <form className={styles.form} onSubmit={handleLogin}>
+          <div className={styles.inputGroup}>
+            <Mail className={styles.inputIcon} />
+            <input
+              className={styles.input}
               type="email"
+              placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-            <Input
-              label="Пароль"
+          </div>
+
+          <div className={styles.inputGroup}>
+            <Lock className={styles.inputIcon} />
+            <input
+              className={styles.input}
               type="password"
+              placeholder="Пароль"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-            {error && <div className={styles.error}>{error}</div>}
-            <Button type="submit" disabled={loading}>
-              {loading ? "Вход..." : "Войти"}
-            </Button>
-          </form>
-          <div className={styles.links}>
-            <Link href="/signup">Нет аккаунта? Зарегистрироваться</Link>
-            <Link href="/dashboard">Продолжить без регистрации</Link>
           </div>
-        </CardContent>
-      </Card>
+
+          {error && <div className={styles.error}>{error}</div>}
+
+          <button className={styles.submitBtn} type="submit" disabled={loading}>
+            {loading ? "Вход..." : "Войти"}
+          </button>
+        </form>
+
+        <div className={styles.links}>
+          <Link href="/signup" className={styles.link}>
+            Нет аккаунта? Зарегистрироваться
+          </Link>
+          <Link href="/dashboard" className={styles.linkMuted}>
+            Продолжить без регистрации
+          </Link>
+        </div>
+      </div>
     </main>
   );
 }

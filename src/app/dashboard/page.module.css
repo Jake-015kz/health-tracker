@@ -1,66 +1,5 @@
 .page {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: var(--space-lg);
-}
-
-.header {
-  margin-bottom: var(--space-2xl);
-}
-
-.backLink {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  font-size: var(--space-sm);
-  color: var(--color-text-muted);
-  text-decoration: none;
-  margin-bottom: var(--space-md);
-  transition: color 0.15s ease;
-}
-
-.backLink:hover {
-  color: var(--color-text);
-}
-
-.title {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text);
-}
-
-.titleRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-md);
-}
-
-.userSection {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-}
-
-.userLabel {
-  font-size: var(--space-sm);
-  color: var(--color-text-muted);
-}
-
-.logoutBtn {
-  padding: var(--space-xs) var(--space-sm);
-  font-size: var(--space-sm);
-  color: var(--color-text-muted);
-  background: none;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.logoutBtn:hover {
-  color: var(--color-danger);
-  border-color: var(--color-danger);
+  animation: fadeIn 0.3s ease-out;
 }
 
 .tabs {
@@ -80,34 +19,35 @@
 
 .tab {
   padding: var(--space-sm) var(--space-md);
-  font-size: var(--space-sm);
+  font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   color: var(--color-text-muted);
   background: none;
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .tab:hover {
   color: var(--color-text);
-  background-color: var(--color-bg);
+  background-color: rgba(51, 203, 120, 0.08);
 }
 
 .tabActive {
   color: var(--color-primary-dark);
-  background-color: var(--color-success-light);
+  background-color: rgba(51, 203, 120, 0.15);
 }
 
-@media (max-width: 480px) {
-  .page {
-    padding: var(--space-md);
-  }
+.content {
+  animation: fadeInUp 0.3s ease-out;
+}
 
-  .title {
-    font-size: var(--font-size-xl);
+@media (max-width: 768px) {
+  .tabs {
+    margin: 0 calc(-1 * var(--space-md));
+    padding: 0 var(--space-md) var(--space-sm);
   }
 }
