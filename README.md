@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Health Tracker
 
-## Getting Started
+Приложение для мониторинга здоровья после инсульта. Контроль артериального давления, пульса, уровня сахара в крови и приёма лекарств.
 
-First, run the development server:
+## Стек
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Framework:** Next.js 16 (App Router)
+- **Language:** TypeScript (strict)
+- **UI:** Radix UI Slot (asChild), CSS Modules (БЭМ)
+- **Charts:** Recharts
+- **Forms:** React Hook Form + Zod
+- **Storage:** localStorage (MVP)
+
+## Структура проекта (Feature-Sliced Design)
+
+```
+src/
+├── app/          # Роутинг (App Router)
+├── widgets/      # Составные блоки UI (дашборд, отчёт)
+├── features/     # Пользовательские действия (формы, чек-листы)
+├── entities/     # Бизнес-сущности (biometrics, medication, telegram)
+└── shared/       # Переиспользуемые ресурсы (UI, утилиты, конфиг)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Запуск
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Откройте [http://localhost:3000](http://localhost:3000)
 
-## Learn More
+## Скрипты
 
-To learn more about Next.js, take a look at the following resources:
+| Команда | Описание |
+|---------|----------|
+| `npm run dev` | Запуск dev-сервера |
+| `npm run build` | Production-сборка |
+| `npm run start` | Запуск production-сервера |
+| `npm run lint` | Проверка ESLint |
+| `npm run lint:fix` | Автоисправление ESLint |
+| `npm run format` | Форматирование Prettier |
+| `npm run typecheck` | Проверка TypeScript |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Деплой на Vercel
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Проект готов к деплою на Vercel «из коробки»:
 
-## Deploy on Vercel
+```bash
+npx vercel
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Функционал
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Давление:** Контроль систолического/диастолического давления с визуальным выделением критических зон (>140/90)
+- **Пульс:** Мониторинг частоты сердечных сокращений
+- **Сахар:** Контроль уровня глюкозы в крови с выделением повышенных значений (>7.0 ммоль/л)
+- **Лекарства:** Интерактивный чек-лист приёма таблеток на текущий день
+- **Графики:** Динамика давления, пульса и сахара (Recharts)
+- **Экспорт:** Выгрузка истории в JSON/CSV для врача
+- **Отчёт:** Печатная таблица со всей историей измерений
+
+## Лицензия
+
+Private

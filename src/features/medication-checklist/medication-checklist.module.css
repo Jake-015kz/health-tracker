@@ -1,0 +1,240 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.medicationItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--color-bg);
+  border-radius: var(--radius-md);
+  transition: background-color 0.15s ease;
+}
+
+.medicationItem:hover {
+  background-color: #dfe2e0;
+}
+
+.medicationInfo {
+  flex: 1;
+}
+
+.medicationName {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+}
+
+.medicationDosage {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.medicationTimes {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.timeTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-xs);
+  font-size: var(--font-size-xs);
+  color: var(--color-primary-dark);
+  background-color: var(--color-success-light);
+  border-radius: var(--radius-sm);
+}
+
+.timeTagTaken {
+  color: #ffffff;
+  background-color: var(--color-success);
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.emptyState {
+  text-align: center;
+  padding: var(--space-xl);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background-color: var(--color-bg);
+  border-radius: var(--radius-md);
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+@media (max-width: 480px) {
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+
+  .medicationItem {
+    padding: var(--space-sm);
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+  }
+
+  .medicationTimes {
+    width: 100%;
+    margin-top: var(--space-xs);
+  }
+
+  .checkboxLabel {
+    font-size: var(--space-md);
+    min-height: 44px;
+  }
+
+  .formActions {
+    flex-direction: column;
+  }
+
+  .formActions > * {
+    width: 100%;
+  }
+}
+
+.checkboxGroup {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.checkboxLabel input {
+  accent-color: var(--color-primary);
+}
+
+.formActions {
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: flex-end;
+}
+
+.buttonRow {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.presetList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.presetItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-xs) var(--space-sm);
+  background-color: var(--color-surface);
+  border-radius: var(--radius-md);
+}
+
+.presetInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.presetName {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.presetDosage {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.hospitalBadge {
+  display: inline-block;
+  font-size: var(--font-size-xs);
+  padding: 1px 4px;
+  background-color: #e0f2fe;
+  color: #0369a1;
+  border-radius: var(--radius-sm);
+  margin-top: 2px;
+}
+
+.deleteBtn {
+  color: var(--color-text-muted);
+}
+
+.deleteConfirm {
+  color: var(--color-danger);
+}
+
+.aiStatus {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  padding: var(--space-sm);
+}
+
+.aiDescription {
+  padding: var(--space-md);
+  background-color: #f0fdf4;
+  border: 1px solid var(--color-success);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+}
+
+.aiDescription p {
+  margin: var(--space-xs) 0;
+}
+
+@media (max-width: 480px) {
+  .buttonRow {
+    flex-direction: column;
+  }
+
+  .buttonRow > * {
+    width: 100%;
+  }
+
+  .presetItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-xs);
+  }
+}

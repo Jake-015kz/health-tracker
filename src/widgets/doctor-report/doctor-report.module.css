@@ -1,0 +1,109 @@
+.reportContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+
+.table th,
+.table td {
+  padding: var(--space-sm) var(--space-md);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.table th {
+  font-weight: var(--font-weight-semibold);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  position: sticky;
+  top: 0;
+}
+
+.table tr:hover td {
+  background-color: #f5f7f5;
+}
+
+.criticalValue {
+  color: var(--color-danger);
+  font-weight: var(--font-weight-semibold);
+}
+
+.normalValue {
+  color: var(--color-success);
+}
+
+.emptyMessage {
+  text-align: center;
+  padding: var(--space-2xl);
+  color: var(--color-text-muted);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.patientInfo {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-md);
+}
+
+/* Print styles */
+@media print {
+  .noPrint {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+    margin: 0;
+    padding: 0;
+  }
+
+  .reportContainer {
+    gap: 0;
+    padding: 0;
+  }
+
+  .tableWrapper {
+    overflow: visible;
+  }
+
+  .table {
+    font-size: 10pt;
+  }
+
+  .table th,
+  .table td {
+    padding: 4px 8px;
+    border: 1px solid #ccc;
+  }
+
+  .table tr {
+    page-break-inside: avoid;
+  }
+
+  .table th {
+    background-color: #f0f0f0 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .criticalValue {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
