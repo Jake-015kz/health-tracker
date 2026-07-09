@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 import type { Medication, MedicationLog, MedicationTime } from "@/entities/medication";
 import { TIME_LABELS, MEDICATION_PRESETS, type MedicationPreset } from "@/entities/medication";
@@ -38,8 +38,35 @@ export function MedicationChecklist({
   const [showPresets, setShowPresets] = useState(false);
   const [aiDescription, setAiDescription] = useState<string | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
+  const [selectedPreset, setSelectedPreset] = useState<string>("");
 
   const todayLogs = medicationLogs.filter((l) => l.date === today);
+
+  const todaySummary = useMemo(() => {
+    const totalSlots = medications.reduce((sum, med) => sum + med.frequency.length, 0);
+    const takenSlots = todayLogs.filter((l) => l.isTaken).length;
+    return { total: totalSlots, taken: takenSlots };
+  }, [medications, todayLogs]);
+
+  const takenMeds = useMemo(() => {
+    return medications.filter((med) =>
+      med.frequency.some((time) =>
+        todayLogs.some(
+          (l) => l.medicationId === med.id && l.scheduledTime === time && l.isTaken,
+        ),
+      ),
+    );
+  }, [medications, todayLogs]);
+
+  const pendingMeds = useMemo(() => {
+    return medications.filter((med) =>
+      med.frequency.some(
+        (time) => !todayLogs.some(
+          (l) => l.medicationId === med.id && l.scheduledTime === time && l.isTaken,
+        ),
+      ),
+    );
+  }, [medications, todayLogs]);
 
   const isTaken = (medicationId: string, time: MedicationTime) => {
     return todayLogs.some(
@@ -83,6 +110,14 @@ export function MedicationChecklist({
       prescriptionType: preset.prescriptionType,
     });
     setShowPresets(false);
+  };
+
+  const addPresetFromDropdown = async () => {
+    const preset = MEDICATION_PRESETS.find((p) => p.name === selectedPreset);
+    if (preset) {
+      await addPreset(preset);
+      setSelectedPreset("");
+    }
   };
 
   const startEdit = (med: Medication) => {
@@ -147,6 +182,51 @@ export function MedicationChecklist({
       </CardHeader>
       <CardContent>
         <div className={styles.container}>
+          {medications.length > 0 && (
+            <div className={styles.summary}>
+              <div className={styles.summaryHeader}>
+                <span className={styles.summaryTitle}>Принято сегодня</span>
+                <span className={styles.summaryCount}>
+                  {todaySummary.taken} из {todaySummary.total}
+                </span>
+              </div>
+              <div className={styles.progressBar}>
+                <div
+                  className={styles.progressFill}
+                  style={{
+                    width: todaySummary.total > 0
+                      ? `${(todaySummary.taken / todaySummary.total) * 100}%`
+                      : "0%",
+                  }}
+                />
+              </div>
+              {takenMeds.length > 0 && (
+                <div className={styles.summarySection}>
+                  <span className={styles.summaryLabel}>Принято:</span>
+                  <div className={styles.summaryTags}>
+                    {takenMeds.map((med) => (
+                      <span key={med.id} className={`${styles.tag} ${styles.tagTaken}`}>
+                        {med.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {pendingMeds.length > 0 && (
+                <div className={styles.summarySection}>
+                  <span className={styles.summaryLabel}>Осталось:</span>
+                  <div className={styles.summaryTags}>
+                    {pendingMeds.map((med) => (
+                      <span key={med.id} className={`${styles.tag} ${styles.tagPending}`}>
+                        {med.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {medications.length === 0 && !showForm && !showPresets && (
             <div className={styles.emptyState}>
               Нет добавленных лекарств. Нажмите «Добавить», чтобы начать.
@@ -159,6 +239,9 @@ export function MedicationChecklist({
                 <div className={styles.medicationInfo}>
                   <div className={styles.medicationName}>{med.name}</div>
                   <div className={styles.medicationDosage}>{med.dosage}</div>
+                  {med.isConditional && med.conditionText && (
+                    <div className={styles.conditionBadge}>{med.conditionText}</div>
+                  )}
                   {med.isFromHospital && (
                     <span className={styles.hospitalBadge}>Из стационара</span>
                   )}
@@ -221,6 +304,9 @@ export function MedicationChecklist({
                     <div className={styles.presetInfo}>
                       <span className={styles.presetName}>{preset.name}</span>
                       <span className={styles.presetDosage}>{preset.dosage}</span>
+                      {preset.isConditional && (
+                        <span className={styles.presetCondition}>{preset.conditionText}</span>
+                      )}
                     </div>
                     <Button size="sm" onClick={() => addPreset(preset)}>
                       + Добавить

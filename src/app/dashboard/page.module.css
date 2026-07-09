@@ -2,7 +2,7 @@
   animation: fadeIn 0.3s ease-out;
 }
 
-.tabs {
+.tabsDesktop {
   display: flex;
   gap: var(--space-xs);
   margin-bottom: var(--space-xl);
@@ -15,7 +15,11 @@
   scrollbar-width: none;
 }
 
-.tabs::-webkit-scrollbar {
+.tabsDesktop::-webkit-scrollbar {
+  display: none;
+}
+
+.tabsMobile {
   display: none;
 }
 
@@ -50,16 +54,32 @@
 }
 
 @media (max-width: 768px) {
-  .tabs {
-    margin: 0 calc(-1 * var(--space-md));
-    padding: var(--space-xs) var(--space-md);
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
+  .tabsDesktop {
+    display: none;
   }
 
-  .tab {
-    padding: var(--space-sm) var(--space-md);
-    font-size: var(--font-size-xs);
+  .tabsMobile {
+    display: block;
+    width: 100%;
+    margin-bottom: var(--space-xl);
+    padding: var(--space-md);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+
+  .tabsMobile:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(51, 203, 120, 0.15);
   }
 }

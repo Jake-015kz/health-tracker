@@ -16,6 +16,7 @@
     align-items: center;
     justify-content: space-around;
     padding: 0 var(--space-sm);
+    padding-bottom: env(safe-area-inset-bottom, 0);
     z-index: 100;
   }
 
@@ -23,14 +24,16 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 2px;
-    padding: var(--space-xs) var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
     border-radius: var(--radius-md);
     color: rgba(255, 255, 255, 0.5);
     font-size: 10px;
     text-decoration: none;
     transition: all 0.2s ease;
     min-width: 56px;
+    min-height: 44px;
   }
 
   .navItem:hover,
@@ -43,8 +46,8 @@
   }
 
   .navIcon {
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
   }
 
   .navLabel {

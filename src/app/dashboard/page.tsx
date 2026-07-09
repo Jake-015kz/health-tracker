@@ -61,7 +61,7 @@ export default function DashboardPage() {
 
   return (
     <main className={styles.page}>
-      <div className={styles.tabs}>
+      <div className={styles.tabsDesktop}>
         {TABS.map((tab) => (
           <button
             key={tab.id}
@@ -72,6 +72,18 @@ export default function DashboardPage() {
           </button>
         ))}
       </div>
+
+      <select
+        className={styles.tabsMobile}
+        value={activeTab}
+        onChange={(e) => handleTabClick(e.target.value as TabId)}
+      >
+        {TABS.map((tab) => (
+          <option key={tab.id} value={tab.id}>
+            {tab.label}
+          </option>
+        ))}
+      </select>
 
       <div className={styles.content}>
         {activeTab === "overview" && (

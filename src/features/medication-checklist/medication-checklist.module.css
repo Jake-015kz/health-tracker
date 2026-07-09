@@ -4,6 +4,83 @@
   gap: var(--space-md);
 }
 
+.summary {
+  padding: var(--space-md);
+  background: linear-gradient(135deg, #f0fdf4 0%, #e8f5e9 100%);
+  border: 1px solid var(--color-success);
+  border-radius: var(--radius-lg);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.summaryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+}
+
+.summaryTitle {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.summaryCount {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-dark);
+}
+
+.progressBar {
+  height: 8px;
+  background: var(--color-border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: var(--space-sm);
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary) 0%, #2ba865 100%);
+  border-radius: 4px;
+  transition: width 0.5s ease-out;
+}
+
+.summarySection {
+  margin-top: var(--space-sm);
+}
+
+.summaryLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  display: block;
+  margin-bottom: var(--space-xs);
+}
+
+.summaryTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.tag {
+  display: inline-block;
+  padding: 2px var(--space-sm);
+  font-size: var(--font-size-xs);
+  border-radius: var(--radius-sm);
+}
+
+.tagTaken {
+  background-color: var(--color-success);
+  color: white;
+}
+
+.tagPending {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
 .list {
   display: flex;
   flex-direction: column;
@@ -37,6 +114,12 @@
 .medicationDosage {
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
+}
+
+.conditionBadge {
+  font-size: var(--font-size-xs);
+  color: var(--color-warning);
+  margin-top: 2px;
 }
 
 .medicationTimes {
@@ -185,6 +268,11 @@
 .presetDosage {
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
+}
+
+.presetCondition {
+  font-size: var(--font-size-xs);
+  color: var(--color-warning);
 }
 
 .hospitalBadge {
