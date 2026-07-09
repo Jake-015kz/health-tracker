@@ -3,20 +3,29 @@
 import { useState } from "react";
 
 import type { BiometricEntry } from "@/entities/biometrics";
+import type { Medication } from "@/entities/medication";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Button } from "@/shared/ui/button";
+import { PDFReportButton } from "@/features/export-data/pdf-report";
 import { TIME_LABELS, isCriticalBloodPressure, isCriticalBloodSugar } from "@/shared/lib/constants";
 
 import styles from "./doctor-report.module.css";
 
 interface DoctorReportProps {
   biometrics: BiometricEntry[];
+  medications?: Medication[];
   loading: boolean;
   onEdit?: (entry: BiometricEntry) => void;
   onDelete?: (id: string) => void;
 }
 
-export function DoctorReport({ biometrics: entries, loading, onEdit, onDelete }: DoctorReportProps) {
+export function DoctorReport({
+  biometrics: entries,
+  medications = [],
+  loading,
+  onEdit,
+  onDelete,
+}: DoctorReportProps) {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const sortedEntries = [...entries].sort(
@@ -53,7 +62,10 @@ export function DoctorReport({ biometrics: entries, loading, onEdit, onDelete }:
             Печатная форма с историей всех измерений
           </p>
         </div>
-        <Button onClick={handlePrint}>Печать</Button>
+        <div className={styles.buttonRow}>
+          <PDFReportButton biometrics={entries} medications={medications} />
+          <Button variant="secondary" onClick={handlePrint}>Печать</Button>
+        </div>
       </div>
 
       {sortedEntries.length === 0 ? (

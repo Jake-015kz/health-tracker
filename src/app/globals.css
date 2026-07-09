@@ -311,3 +311,32 @@ textarea {
   background: rgba(51, 203, 120, 0.3);
   color: var(--color-text);
 }
+
+/* === Dark Mode === */
+[data-theme="dark"] {
+  --color-bg: #0a1a10;
+  --color-surface: #1a2e20;
+  --color-text: #e8f5e9;
+  --color-text-muted: #9ca3af;
+  --color-border: #2d4a35;
+  --color-danger-light: #3d1a1a;
+  --color-warning-light: #3d351a;
+  --color-success-light: #1a3d2a;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+
+  --glass-bg: rgba(26, 46, 32, 0.85);
+  --glass-border: rgba(51, 203, 120, 0.1);
+}
+
+[data-theme="dark"] .glass-card {
+  background: rgba(26, 46, 32, 0.9);
+  border-color: rgba(51, 203, 120, 0.1);
+}
+
+[data-theme="dark"] .glass-dark {
+  background: rgba(10, 26, 16, 0.95);
+}

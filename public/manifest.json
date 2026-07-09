@@ -1,0 +1,22 @@
+{
+  "name": "Health Tracker — Мониторинг здоровья",
+  "short_name": "Health Tracker",
+  "description": "Контроль давления, пульса, сахара и лекарств после инсульта",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#ebeeea",
+  "theme_color": "#33cb78",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

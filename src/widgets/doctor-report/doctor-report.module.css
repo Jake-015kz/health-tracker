@@ -55,6 +55,11 @@
   align-items: center;
 }
 
+.buttonRow {
+  display: flex;
+  gap: var(--space-sm);
+}
+
 .patientInfo {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);

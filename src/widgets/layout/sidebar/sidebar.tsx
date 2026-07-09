@@ -11,8 +11,11 @@ import {
   Download,
   LogOut,
   Heart,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useAuth } from "@/features/auth";
+import { useTheme } from "@/shared/lib/theme-context";
 
 import styles from "./sidebar.module.css";
 
@@ -28,6 +31,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const { user, signOut } = useAuth();
   const [currentHash, setCurrentHash] = useState("");
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const updateHash = () => {
@@ -64,6 +68,14 @@ export function Sidebar() {
       </nav>
 
       <div className={styles.footer}>
+        <button className={styles.themeToggle} onClick={toggleTheme} title="Сменить тему">
+          {theme === "light" ? (
+            <Moon className={styles.themeIcon} />
+          ) : (
+            <Sun className={styles.themeIcon} />
+          )}
+        </button>
+
         {user ? (
           <>
             <div className={styles.user}>

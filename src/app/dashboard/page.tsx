@@ -8,6 +8,10 @@ import { MedicationChecklist } from "@/features/medication-checklist";
 import { ExportData } from "@/features/export-data";
 import { Dashboard } from "@/widgets/dashboard";
 import { DoctorReport } from "@/widgets/doctor-report";
+import {
+  requestNotificationPermission,
+  scheduleMedicationReminders,
+} from "@/shared/lib/notifications";
 
 import styles from "./page.module.css";
 
@@ -49,6 +53,16 @@ export default function DashboardPage() {
     window.addEventListener("hashchange", handleHashChange);
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
+
+  useEffect(() => {
+    if (store.medications.length > 0 && !store.loading) {
+      requestNotificationPermission().then((granted) => {
+        if (granted) {
+          scheduleMedicationReminders(store.medications);
+        }
+      });
+    }
+  }, [store.medications, store.loading]);
 
   const handleTabClick = (tabId: TabId) => {
     setActiveTab(tabId);
@@ -108,7 +122,11 @@ export default function DashboardPage() {
           />
         )}
         {activeTab === "report" && (
-          <DoctorReport biometrics={store.biometrics} loading={store.loading} />
+          <DoctorReport
+            biometrics={store.biometrics}
+            medications={store.medications}
+            loading={store.loading}
+          />
         )}
         {activeTab === "export" && (
           <ExportData biometrics={store.biometrics} loading={store.loading} />
