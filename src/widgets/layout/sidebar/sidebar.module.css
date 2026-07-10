@@ -108,7 +108,24 @@
 }
 
 .user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
   margin-bottom: var(--space-sm);
+}
+
+.onlineDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-danger);
+  flex-shrink: 0;
+  transition: background 0.3s ease;
+}
+
+.onlineDot[data-online="true"] {
+  background: var(--color-success);
+  box-shadow: 0 0 6px rgba(51, 203, 120, 0.5);
 }
 
 .userEmail {

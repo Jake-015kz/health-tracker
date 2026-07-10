@@ -36,6 +36,50 @@ export function DoctorReport({
     window.print();
   };
 
+  const handleSendEmail = async () => {
+    const email = prompt("Введите email врача:");
+    if (!email) return;
+
+    const reportHtml = `
+      <h1>Отчёт для врача</h1>
+      <p>Дата: ${new Date().toLocaleDateString("ru-RU")}</p>
+      <h2>Измерения</h2>
+      <table border="1" cellpadding="8" cellspacing="0">
+        <tr><th>Дата</th><th>Время</th><th>Давление</th><th>Пульс</th><th>Сахар</th></tr>
+        ${sortedEntries.map((e) => `
+          <tr>
+            <td>${e.date}</td>
+            <td>${e.timeOfDay === "morning" ? "Утро" : "Вечер"}</td>
+            <td>${e.bloodPressure ? `${e.bloodPressure.systolic}/${e.bloodPressure.diastolic}` : "—"}</td>
+            <td>${e.pulse ?? "—"}</td>
+            <td>${e.bloodSugar ?? "—"}</td>
+          </tr>
+        `).join("")}
+      </table>
+      ${medications.length > 0 ? `
+        <h2>Лекарства</h2>
+        <ul>
+          ${medications.map((m) => `<li>${m.name} — ${m.dosage} (${m.frequency.join(", ")})</li>`).join("")}
+        </ul>
+      ` : ""}
+    `;
+
+    try {
+      await fetch("/api/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: email,
+          subject: "Отчёт для врача — Health Tracker",
+          body: reportHtml,
+        }),
+      });
+      alert("Отчёт отправлен!");
+    } catch {
+      alert("Ошибка отправки. Попробуйте позже.");
+    }
+  };
+
   const handleDelete = (id: string) => {
     if (deleteConfirm === id) {
       onDelete?.(id);
@@ -65,6 +109,7 @@ export function DoctorReport({
         <div className={styles.buttonRow}>
           <PDFReportButton biometrics={entries} medications={medications} />
           <Button variant="secondary" onClick={handlePrint}>Печать</Button>
+          <Button variant="secondary" onClick={handleSendEmail}>📧 Отправить по email</Button>
         </div>
       </div>
 

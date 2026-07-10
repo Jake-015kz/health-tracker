@@ -60,3 +60,19 @@ export function scheduleMedicationReminders(
     });
   });
 }
+
+// Слушатель сообщений от Service Worker (напоминания с подтверждением)
+export function onMedicationAction(
+  callback: (action: "taken" | "skip", medicationId: string, time: string) => void,
+) {
+  if (!("serviceWorker" in navigator)) return () => {};
+
+  const handler = (event: MessageEvent) => {
+    if (event.data?.type === "MEDICATION_ACTION") {
+      callback(event.data.action, event.data.medicationId, event.data.time);
+    }
+  };
+
+  navigator.serviceWorker.addEventListener("message", handler);
+  return () => navigator.serviceWorker.removeEventListener("message", handler);
+}

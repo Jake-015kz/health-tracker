@@ -1,0 +1,87 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: var(--space-md);
+}
+
+.cell {
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: default;
+  transition: transform 0.15s ease;
+  position: relative;
+}
+
+.cell:hover {
+  transform: scale(1.15);
+  z-index: 1;
+}
+
+.cellLabel {
+  font-size: 9px;
+  font-weight: var(--font-weight-medium);
+  opacity: 0.8;
+}
+
+.scoreGood {
+  background: var(--color-success);
+  color: #ffffff;
+}
+
+.scoreMid {
+  background: var(--color-warning);
+  color: #061f12;
+}
+
+.scoreLow {
+  background: var(--color-danger);
+  color: #ffffff;
+}
+
+.scoreNone {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.legend {
+  display: flex;
+  gap: var(--space-md);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+.legendDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.legendDot.scoreGood {
+  background: var(--color-success);
+}
+
+.legendDot.scoreMid {
+  background: var(--color-warning);
+}
+
+.legendDot.scoreLow {
+  background: var(--color-danger);
+}
+
+.legendDot.scoreNone {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+}

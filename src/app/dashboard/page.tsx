@@ -8,6 +8,9 @@ import { MedicationChecklist } from "@/features/medication-checklist";
 import { ExportData } from "@/features/export-data";
 import { Dashboard } from "@/widgets/dashboard";
 import { DoctorReport } from "@/widgets/doctor-report";
+import { AdherenceHeatmap } from "@/widgets/heatmap/heatmap";
+import { ProfileForm } from "@/features/profile/profile-form";
+import { CsvImport } from "@/features/import-data/csv-import";
 import {
   requestNotificationPermission,
   scheduleMedicationReminders,
@@ -15,7 +18,7 @@ import {
 
 import styles from "./page.module.css";
 
-type TabId = "overview" | "log" | "medications" | "schedule" | "report" | "export";
+type TabId = "overview" | "log" | "medications" | "schedule" | "report" | "export" | "profile";
 
 const HASH_TO_TAB: Record<string, TabId> = {
   "": "overview",
@@ -24,6 +27,7 @@ const HASH_TO_TAB: Record<string, TabId> = {
   schedule: "schedule",
   report: "report",
   export: "export",
+  profile: "profile",
 };
 
 function getTabFromHash(): TabId {
@@ -61,7 +65,13 @@ export default function DashboardPage() {
     <main className={styles.page}>
       <div className={styles.content}>
         {activeTab === "overview" && (
-          <Dashboard biometrics={store.biometrics} loading={store.loading} />
+          <>
+            <Dashboard biometrics={store.biometrics} loading={store.loading} />
+            <AdherenceHeatmap
+              medications={store.medications}
+              medicationLogs={store.medicationLogs}
+            />
+          </>
         )}
         {activeTab === "log" && (
           <LogMetrics
@@ -109,7 +119,17 @@ export default function DashboardPage() {
           />
         )}
         {activeTab === "export" && (
-          <ExportData biometrics={store.biometrics} loading={store.loading} />
+          <>
+            <ExportData biometrics={store.biometrics} loading={store.loading} />
+            <CsvImport onImport={async (entries) => {
+              for (const entry of entries) {
+                await store.addBiometric(entry);
+              }
+            }} />
+          </>
+        )}
+        {activeTab === "profile" && user && (
+          <ProfileForm user={user} />
         )}
       </div>
     </main>

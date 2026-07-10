@@ -14,9 +14,11 @@ import {
   Heart,
   Sun,
   Moon,
+  User,
 } from "lucide-react";
 import { useAuth } from "@/features/auth";
 import { useTheme } from "@/shared/lib/theme-context";
+import { useOnlineStatus } from "@/shared/lib/use-online-status";
 
 import styles from "./sidebar.module.css";
 
@@ -27,6 +29,7 @@ const NAV_ITEMS = [
   { hash: "schedule", label: "Расписание", icon: Calendar },
   { hash: "report", label: "Отчёт", icon: FileText },
   { hash: "export", label: "Экспорт", icon: Download },
+  { hash: "profile", label: "Профиль", icon: User },
 ] as const;
 
 export function Sidebar() {
@@ -35,6 +38,7 @@ export function Sidebar() {
   const { user, signOut } = useAuth();
   const [currentHash, setCurrentHash] = useState("");
   const { theme, toggleTheme } = useTheme();
+  const isOnline = useOnlineStatus();
 
   useEffect(() => {
     const updateHash = () => {
@@ -97,6 +101,7 @@ export function Sidebar() {
         {user ? (
           <>
             <div className={styles.user}>
+              <span className={styles.onlineDot} data-online={isOnline} />
               <span className={styles.userEmail}>{user.email}</span>
             </div>
             <button className={styles.logoutBtn} onClick={signOut}>

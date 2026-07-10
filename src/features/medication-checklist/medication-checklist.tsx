@@ -53,6 +53,42 @@ export function MedicationChecklist({
   const todayLogs = medicationLogs.filter((l) => l.date === today);
   const todayAdHoc = adHocMedications.filter((m) => m.date === today);
 
+  // Adherence Score за 7 дней
+  const adherenceScore = useMemo(() => {
+    if (medications.length === 0) return null;
+    const days = 7;
+    const now = new Date();
+    let totalSlots = 0;
+    let takenSlots = 0;
+    const processedGroups = new Set<string>();
+    for (const med of medications) {
+      const freq =
+        med.groupId && processedGroups.has(med.groupId)
+          ? []
+          : (med.groupId && processedGroups.add(med.groupId), med.frequency);
+      for (let d = 0; d < days; d++) {
+        const date = new Date(now);
+        date.setDate(date.getDate() - d);
+        const dateStr = date.toISOString().split("T")[0];
+        for (const time of freq) {
+          totalSlots++;
+          if (
+            medicationLogs.some(
+              (l) =>
+                l.medicationId === med.id &&
+                l.scheduledTime === time &&
+                l.date === dateStr &&
+                l.isTaken,
+            )
+          ) {
+            takenSlots++;
+          }
+        }
+      }
+    }
+    return totalSlots > 0 ? Math.round((takenSlots / totalSlots) * 100) : 0;
+  }, [medications, medicationLogs]);
+
   const isTaken = (medicationId: string, time: MedicationTime) => {
     return todayLogs.some(
       (l) => l.medicationId === medicationId && l.scheduledTime === time && l.isTaken,
@@ -339,6 +375,37 @@ export function MedicationChecklist({
                       ? `${(takenCount / totalSlots) * 100}%`
                       : "0%",
                   }}
+                />
+              </div>
+            </div>
+          )}
+
+          {adherenceScore !== null && mode === "checklist" && (
+            <div className={styles.adherenceCard}>
+              <div className={styles.adherenceHeader}>
+                <span className={styles.adherenceTitle}>Приверженность за 7 дней</span>
+                <span
+                  className={`${styles.adherenceValue} ${
+                    adherenceScore >= 80
+                      ? styles.adherenceGood
+                      : adherenceScore >= 50
+                        ? styles.adherenceMid
+                        : styles.adherenceLow
+                  }`}
+                >
+                  {adherenceScore}%
+                </span>
+              </div>
+              <div className={styles.progressBar}>
+                <div
+                  className={`${styles.progressFill} ${
+                    adherenceScore >= 80
+                      ? ""
+                      : adherenceScore >= 50
+                        ? styles.progressMid
+                        : styles.progressLow
+                  }`}
+                  style={{ width: `${adherenceScore}%` }}
                 />
               </div>
             </div>

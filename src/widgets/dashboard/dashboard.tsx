@@ -149,6 +149,23 @@ export function Dashboard({ biometrics: entries, loading }: DashboardProps) {
 
   const periodLabel = PERIODS.find((p) => p.days === periodDays)?.label ?? "Всё время";
 
+  // Тренд давления за 3 дня
+  const bpTrend = useMemo(() => {
+    const recent = entries
+      .filter((e) => e.bloodPressure)
+      .slice(-6)
+      .map((e) => e.bloodPressure!.systolic);
+    if (recent.length < 4) return null;
+    const firstHalf = recent.slice(0, Math.floor(recent.length / 2));
+    const secondHalf = recent.slice(Math.floor(recent.length / 2));
+    const avgFirst = firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length;
+    const avgSecond = secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length;
+    const diff = avgSecond - avgFirst;
+    if (diff > 5) return "rising" as const;
+    if (diff < -5) return "falling" as const;
+    return "stable" as const;
+  }, [entries]);
+
   if (loading) {
     return (
       <div className={styles.dashboard}>
@@ -237,6 +254,19 @@ export function Dashboard({ biometrics: entries, loading }: DashboardProps) {
           </button>
         ))}
       </div>
+
+      {bpTrend === "rising" && (
+        <div className={styles.trendAlert}>
+          <TrendingUp size={16} />
+          <span>Давление повышается в последние дни — обратите внимание</span>
+        </div>
+      )}
+      {bpTrend === "falling" && (
+        <div className={styles.trendGood}>
+          <TrendingUp size={16} style={{ transform: "rotate(180deg)" }} />
+          <span>Давление стабильно снижается</span>
+        </div>
+      )}
 
       {(avgBP || avgPulse || avgSugar) && (
         <div className={styles.avgRow}>
