@@ -15,12 +15,13 @@ import {
 
 import styles from "./page.module.css";
 
-type TabId = "overview" | "log" | "medications" | "report" | "export";
+type TabId = "overview" | "log" | "medications" | "schedule" | "report" | "export";
 
 const HASH_TO_TAB: Record<string, TabId> = {
   "": "overview",
   log: "log",
   medications: "medications",
+  schedule: "schedule",
   report: "report",
   export: "export",
 };
@@ -29,6 +30,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: "overview", label: "Обзор" },
   { id: "log", label: "Новое измерение" },
   { id: "medications", label: "Лекарства" },
+  { id: "schedule", label: "Расписание" },
   { id: "report", label: "Отчёт для врача" },
   { id: "export", label: "Экспорт" },
 ];
@@ -75,18 +77,6 @@ export default function DashboardPage() {
 
   return (
     <main className={styles.page}>
-      <div className={styles.tabsDesktop}>
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            className={`${styles.tab} ${activeTab === tab.id ? styles.tabActive : ""}`}
-            onClick={() => handleTabClick(tab.id)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
       <select
         className={styles.tabsMobile}
         value={activeTab}
@@ -113,12 +103,32 @@ export default function DashboardPage() {
         )}
         {activeTab === "medications" && (
           <MedicationChecklist
+            mode="checklist"
             medications={store.medications}
             medicationLogs={store.medicationLogs}
+            adHocMedications={store.adHocMedications}
             onAddMedication={store.addMedication}
             onUpdateMedication={store.updateMedication}
             onDeleteMedication={store.deleteMedication}
             onToggleLog={store.toggleMedLog}
+            onAddAdHoc={store.addAdHocMedication}
+            onToggleAdHoc={store.toggleAdHocMedication}
+            onDeleteAdHoc={store.deleteAdHocMedication}
+          />
+        )}
+        {activeTab === "schedule" && (
+          <MedicationChecklist
+            mode="schedule"
+            medications={store.medications}
+            medicationLogs={store.medicationLogs}
+            adHocMedications={store.adHocMedications}
+            onAddMedication={store.addMedication}
+            onUpdateMedication={store.updateMedication}
+            onDeleteMedication={store.deleteMedication}
+            onToggleLog={store.toggleMedLog}
+            onAddAdHoc={store.addAdHocMedication}
+            onToggleAdHoc={store.toggleAdHocMedication}
+            onDeleteAdHoc={store.deleteAdHocMedication}
           />
         )}
         {activeTab === "report" && (

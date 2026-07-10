@@ -1,7 +1,7 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+  gap: var(--space-lg);
 }
 
 .summary {
@@ -36,7 +36,6 @@
   background: var(--color-border);
   border-radius: 4px;
   overflow: hidden;
-  margin-bottom: var(--space-sm);
 }
 
 .progressFill {
@@ -46,39 +45,36 @@
   transition: width 0.5s ease-out;
 }
 
-.summarySection {
-  margin-top: var(--space-sm);
+.timeSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
 }
 
-.summaryLabel {
+.timeSectionHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.timeIcon {
+  font-size: var(--font-size-lg);
+}
+
+.timeLabel {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.timeCount {
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
-  display: block;
-  margin-bottom: var(--space-xs);
-}
-
-.summaryTags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-xs);
-}
-
-.tag {
-  display: inline-block;
-  padding: 2px var(--space-sm);
-  font-size: var(--font-size-xs);
-  border-radius: var(--radius-sm);
-}
-
-.tagTaken {
-  background-color: var(--color-success);
-  color: white;
-}
-
-.tagPending {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-border);
-  color: var(--color-text);
+  background: var(--color-bg);
+  padding: 2px 8px;
+  border-radius: 100px;
 }
 
 .list {
@@ -103,6 +99,7 @@
 
 .medicationInfo {
   flex: 1;
+  min-width: 0;
 }
 
 .medicationName {
@@ -122,36 +119,42 @@
   margin-top: 2px;
 }
 
-.medicationTimes {
+.medicationActions {
   display: flex;
-  gap: var(--space-xs);
+  align-items: center;
+  gap: var(--space-sm);
+  flex-shrink: 0;
 }
 
 .timeTag {
   display: inline-flex;
   align-items: center;
-  padding: 2px var(--space-xs);
+  gap: var(--space-xs);
+  padding: 4px var(--space-sm);
   font-size: var(--font-size-xs);
   color: var(--color-primary-dark);
   background-color: var(--color-success-light);
   border-radius: var(--radius-sm);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
 }
 
-.timeTagTaken {
-  color: #ffffff;
+.timeTag:hover {
   background-color: var(--color-success);
+  color: #ffffff;
 }
 
 .checkbox {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   accent-color: var(--color-primary);
   cursor: pointer;
 }
 
 .actions {
   display: flex;
-  gap: var(--space-sm);
+  gap: var(--space-xs);
 }
 
 .emptyState {
@@ -174,36 +177,6 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-md);
-}
-
-@media (max-width: 480px) {
-  .formRow {
-    grid-template-columns: 1fr;
-  }
-
-  .medicationItem {
-    padding: var(--space-sm);
-    gap: var(--space-sm);
-    flex-wrap: wrap;
-  }
-
-  .medicationTimes {
-    width: 100%;
-    margin-top: var(--space-xs);
-  }
-
-  .checkboxLabel {
-    font-size: var(--space-md);
-    min-height: 44px;
-  }
-
-  .formActions {
-    flex-direction: column;
-  }
-
-  .formActions > * {
-    width: 100%;
-  }
 }
 
 .checkboxGroup {
@@ -293,25 +266,30 @@
   color: var(--color-danger);
 }
 
-.aiStatus {
+.label {
+  display: block;
+  margin-bottom: var(--space-xs);
   font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-  padding: var(--space-sm);
-}
-
-.aiDescription {
-  padding: var(--space-md);
-  background-color: #f0fdf4;
-  border: 1px solid var(--color-success);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-sm);
-}
-
-.aiDescription p {
-  margin: var(--space-xs) 0;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
 }
 
 @media (max-width: 480px) {
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+
+  .medicationItem {
+    padding: var(--space-sm);
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+  }
+
+  .medicationActions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .buttonRow {
     flex-direction: column;
   }
@@ -324,5 +302,13 @@
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-xs);
+  }
+
+  .formActions {
+    flex-direction: column;
+  }
+
+  .formActions > * {
+    width: 100%;
   }
 }

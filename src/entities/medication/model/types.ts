@@ -14,6 +14,7 @@ export interface Medication {
   frequency: MedicationTime[];
   notes?: string;
   isActive: boolean;
+  groupId?: string;
   createdAt: string;
 }
 
@@ -26,8 +27,25 @@ export interface MedicationLog {
   date: string;
 }
 
+export interface AdHocMedication {
+  id: string;
+  name: string;
+  dosage: string;
+  time: MedicationTime;
+  date: string;
+  isTaken: boolean;
+  takenAt?: string;
+  createdAt: string;
+}
+
 export const TIME_LABELS: Record<MedicationTime, string> = {
   morning: "Утро",
   afternoon: "День",
   evening: "Вечер",
+};
+
+export const TIME_ICONS: Record<MedicationTime, string> = {
+  morning: "🌅",
+  afternoon: "☀️",
+  evening: "🌙",
 };

@@ -11,6 +11,7 @@ export interface MedicationPreset {
   isFromHospital: boolean;
   prescriptionType: "rx" | "otc" | "unknown";
   frequency: Medication["frequency"];
+  groupId?: string;
 }
 
 export const MEDICATION_PRESETS: MedicationPreset[] = [
@@ -51,6 +52,19 @@ export const MEDICATION_PRESETS: MedicationPreset[] = [
     frequency: ["morning"],
   },
   {
+    name: "Глюконил",
+    activeIngredient: "Глибенкламид",
+    dosage: "5 мг",
+    purpose: "Снижение сахара в крови",
+    isConditional: true,
+    conditionText: "Принимать ТОЛЬКО если сахар утром > 7.0 ммоль/л",
+    stopRule: "Зависит от уровня сахара",
+    isFromHospital: true,
+    prescriptionType: "rx",
+    frequency: ["morning", "evening"],
+    groupId: "gluconil-group",
+  },
+  {
     name: "Глюкованс",
     activeIngredient: "Глибенкламид + Метформин",
     dosage: "1 таблетка",
@@ -61,6 +75,7 @@ export const MEDICATION_PRESETS: MedicationPreset[] = [
     isFromHospital: true,
     prescriptionType: "rx",
     frequency: ["morning", "evening"],
+    groupId: "gluconil-group",
   },
   {
     name: "Индап",

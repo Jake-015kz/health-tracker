@@ -5,7 +5,7 @@ import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 
 import type { BiometricEntry } from "@/entities/biometrics";
-import type { Medication, MedicationLog } from "@/entities/medication";
+import type { Medication, MedicationLog, AdHocMedication } from "@/entities/medication";
 import { storageKeys, loadFromStorage, saveToStorage } from "@/shared/lib/storage";
 import { generateId, getTodayString } from "@/shared/lib/constants";
 
@@ -13,6 +13,7 @@ export function useDataStore(user: User | null) {
   const [biometrics, setBiometrics] = useState<BiometricEntry[]>([]);
   const [medications, setMedications] = useState<Medication[]>([]);
   const [medicationLogs, setMedicationLogs] = useState<MedicationLog[]>([]);
+  const [adHocMedications, setAdHocMedications] = useState<AdHocMedication[]>([]);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
@@ -22,6 +23,7 @@ export function useDataStore(user: User | null) {
       setBiometrics(loadFromStorage<BiometricEntry[]>(storageKeys.biometrics, []));
       setMedications(loadFromStorage<Medication[]>(storageKeys.medications, []));
       setMedicationLogs(loadFromStorage<MedicationLog[]>(storageKeys.medicationLogs, []));
+      setAdHocMedications(loadFromStorage<AdHocMedication[]>(storageKeys.adHocMedications, []));
       setLoading(false);
       return;
     }
@@ -61,6 +63,7 @@ export function useDataStore(user: User | null) {
         frequency: m.frequency as Medication["frequency"],
         notes: (m.notes as string) ?? undefined,
         isActive: m.is_active as boolean,
+        groupId: (m.group_id as string) ?? undefined,
         createdAt: m.created_at as string,
       });
 
@@ -245,6 +248,7 @@ export function useDataStore(user: User | null) {
           frequency: newMed.frequency,
           notes: newMed.notes,
           is_active: newMed.isActive,
+          group_id: newMed.groupId,
         });
       } else {
         saveToStorage(storageKeys.medications, [...medications, newMed]);
@@ -274,6 +278,7 @@ export function useDataStore(user: User | null) {
             frequency: updates.frequency,
             notes: updates.notes,
             is_active: updates.isActive,
+            group_id: updates.groupId,
           })
           .eq("id", id);
       } else {
@@ -375,10 +380,99 @@ export function useDataStore(user: User | null) {
     [user, medicationLogs, supabase],
   );
 
+  // ── CRUD: Ad-hoc лекарства ──
+  const addAdHocMedication = useCallback(
+    async (med: Omit<AdHocMedication, "id" | "createdAt" | "isTaken">) => {
+      const newMed: AdHocMedication = {
+        ...med,
+        id: generateId(),
+        isTaken: false,
+        createdAt: new Date().toISOString(),
+      };
+
+      if (user) {
+        await supabase.from("ad_hoc_medications").insert({
+          id: newMed.id,
+          user_id: user.id,
+          name: newMed.name,
+          dosage: newMed.dosage,
+          time_of_day: newMed.time,
+          date: newMed.date,
+        });
+      } else {
+        saveToStorage(storageKeys.adHocMedications, [...adHocMedications, newMed]);
+      }
+
+      setAdHocMedications((prev) => [...prev, newMed]);
+      return newMed;
+    },
+    [user, adHocMedications, supabase],
+  );
+
+  const toggleAdHocMedication = useCallback(
+    async (id: string) => {
+      const existing = adHocMedications.find((m) => m.id === id);
+      if (!existing) return;
+
+      const newIsTaken = !existing.isTaken;
+
+      if (user) {
+        await supabase
+          .from("ad_hoc_medications")
+          .update({
+            is_taken: newIsTaken,
+            taken_at: newIsTaken ? new Date().toISOString() : null,
+          })
+          .eq("id", id);
+      } else {
+        const updated = adHocMedications.map((m) =>
+          m.id === id
+            ? {
+                ...m,
+                isTaken: newIsTaken,
+                takenAt: newIsTaken ? new Date().toISOString() : undefined,
+              }
+            : m,
+        );
+        saveToStorage(storageKeys.adHocMedications, updated);
+      }
+
+      setAdHocMedications((prev) =>
+        prev.map((m) =>
+          m.id === id
+            ? {
+                ...m,
+                isTaken: newIsTaken,
+                takenAt: newIsTaken ? new Date().toISOString() : undefined,
+              }
+            : m,
+        ),
+      );
+    },
+    [user, adHocMedications, supabase],
+  );
+
+  const deleteAdHocMedication = useCallback(
+    async (id: string) => {
+      if (user) {
+        await supabase.from("ad_hoc_medications").delete().eq("id", id);
+      } else {
+        saveToStorage(
+          storageKeys.adHocMedications,
+          adHocMedications.filter((m) => m.id !== id),
+        );
+      }
+
+      setAdHocMedications((prev) => prev.filter((m) => m.id !== id));
+    },
+    [user, adHocMedications, supabase],
+  );
+
   return {
     biometrics,
     medications,
     medicationLogs,
+    adHocMedications,
     loading,
     addBiometric,
     updateBiometric,
@@ -387,6 +481,9 @@ export function useDataStore(user: User | null) {
     updateMedication,
     deleteMedication,
     toggleMedLog,
+    addAdHocMedication,
+    toggleAdHocMedication,
+    deleteAdHocMedication,
     migrateLocalStorage,
   };
 }

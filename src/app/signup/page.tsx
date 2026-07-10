@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { Heart, Mail, Lock, User } from "lucide-react";
 
 import styles from "./page.module.css";
@@ -15,90 +13,24 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
-  const router = useRouter();
-  const supabase = createClient();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { display_name: displayName },
-        emailRedirectTo: "https://health-tracker-seven-navy.vercel.app/dashboard",
-      },
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, displayName }),
     });
 
-    if (error) {
-      setError(error.message);
+    const result = await res.json();
+
+    if (!res.ok) {
+      setError(result.error || "Ошибка регистрации");
       setLoading(false);
       return;
-    }
-
-    if (data.user) {
-      const localBio = JSON.parse(localStorage.getItem("health-tracker:biometrics") || "[]");
-      const localMeds = JSON.parse(localStorage.getItem("health-tracker:medications") || "[]");
-      const localLogs = JSON.parse(
-        localStorage.getItem("health-tracker:medication-logs") || "[]",
-      );
-
-      if (localBio.length > 0) {
-        await supabase.from("biometric_entries").insert(
-          localBio.map((e: Record<string, unknown>) => ({
-            id: e.id,
-            user_id: data.user!.id,
-            date: e.date,
-            time_of_day: e.timeOfDay,
-            systolic: (e.bloodPressure as Record<string, unknown>)?.systolic,
-            diastolic: (e.bloodPressure as Record<string, unknown>)?.diastolic,
-            pulse: e.pulse,
-            blood_sugar: e.bloodSugar,
-            notes: e.notes,
-          })),
-        );
-      }
-
-      if (localMeds.length > 0) {
-        await supabase.from("medications").insert(
-          localMeds.map((m: Record<string, unknown>) => ({
-            id: m.id,
-            user_id: data.user!.id,
-            name: m.name,
-            active_ingredient: m.activeIngredient,
-            dosage: m.dosage,
-            purpose: m.purpose,
-            stop_rule: m.stopRule,
-            is_conditional: m.isConditional,
-            condition_text: m.conditionText,
-            is_from_hospital: m.isFromHospital,
-            prescription_type: m.prescriptionType,
-            frequency: m.frequency,
-            notes: m.notes,
-            is_active: m.isActive,
-          })),
-        );
-      }
-
-      if (localLogs.length > 0) {
-        await supabase.from("medication_logs").insert(
-          localLogs.map((l: Record<string, unknown>) => ({
-            id: l.id,
-            user_id: data.user!.id,
-            medication_id: l.medicationId,
-            scheduled_time: l.scheduledTime,
-            is_taken: l.isTaken,
-            taken_at: l.takenAt,
-            date: l.date,
-          })),
-        );
-      }
-
-      localStorage.removeItem("health-tracker:biometrics");
-      localStorage.removeItem("health-tracker:medications");
-      localStorage.removeItem("health-tracker:medication-logs");
     }
 
     setEmailSent(true);

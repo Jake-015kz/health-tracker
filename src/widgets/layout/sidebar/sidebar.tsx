@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState, useCallback } from "react";
 import {
   LayoutDashboard,
   Activity,
   Pill,
+  Calendar,
   FileText,
   Download,
   LogOut,
@@ -20,15 +21,17 @@ import { useTheme } from "@/shared/lib/theme-context";
 import styles from "./sidebar.module.css";
 
 const NAV_ITEMS = [
-  { href: "/dashboard", hash: "", label: "Обзор", icon: LayoutDashboard },
-  { href: "/dashboard#log", hash: "log", label: "Измерения", icon: Activity },
-  { href: "/dashboard#medications", hash: "medications", label: "Лекарства", icon: Pill },
-  { href: "/dashboard#report", hash: "report", label: "Отчёт", icon: FileText },
-  { href: "/dashboard#export", hash: "export", label: "Экспорт", icon: Download },
+  { hash: "", label: "Обзор", icon: LayoutDashboard },
+  { hash: "log", label: "Измерения", icon: Activity },
+  { hash: "medications", label: "Лекарства", icon: Pill },
+  { hash: "schedule", label: "Расписание", icon: Calendar },
+  { hash: "report", label: "Отчёт", icon: FileText },
+  { hash: "export", label: "Экспорт", icon: Download },
 ] as const;
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, signOut } = useAuth();
   const [currentHash, setCurrentHash] = useState("");
   const { theme, toggleTheme } = useTheme();
@@ -41,6 +44,20 @@ export function Sidebar() {
     window.addEventListener("hashchange", updateHash);
     return () => window.removeEventListener("hashchange", updateHash);
   }, []);
+
+  const handleNavClick = useCallback(
+    (e: React.MouseEvent, hash: string) => {
+      e.preventDefault();
+      if (pathname !== "/dashboard") {
+        router.push(`/dashboard${hash ? `#${hash}` : ""}`);
+      } else {
+        const url = hash ? `/dashboard#${hash}` : "/dashboard";
+        window.history.replaceState(null, "", url);
+        window.dispatchEvent(new HashChangeEvent("hashchange"));
+      }
+    },
+    [pathname, router],
+  );
 
   return (
     <aside className={styles.sidebar}>
@@ -55,14 +72,15 @@ export function Sidebar() {
           const isDashboard = pathname === "/dashboard";
           const isActive = isDashboard && currentHash === item.hash;
           return (
-            <Link
-              key={item.href}
-              href={item.href}
+            <a
+              key={item.hash}
+              href={`/dashboard${item.hash ? `#${item.hash}` : ""}`}
+              onClick={(e) => handleNavClick(e, item.hash)}
               className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
             >
               <Icon className={styles.navIcon} />
               <span className={styles.navLabel}>{item.label}</span>
-            </Link>
+            </a>
           );
         })}
       </nav>

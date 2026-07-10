@@ -46,7 +46,8 @@
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  padding: var(--space-sm) var(--space-md);
+  padding: 10px var(--space-md);
+  min-height: 44px;
   border-radius: var(--radius-md);
   color: rgba(255, 255, 255, 0.6);
   font-size: var(--font-size-sm);
@@ -63,7 +64,7 @@
 .navItemActive {
   color: #ffffff;
   background: rgba(51, 203, 120, 0.2);
-  border-left: 3px solid var(--color-primary);
+  box-shadow: inset 3px 0 0 var(--color-primary), 0 0 12px rgba(51, 203, 120, 0.15);
 }
 
 .navIcon {

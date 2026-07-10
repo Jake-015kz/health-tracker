@@ -4,6 +4,7 @@ export const storageKeys = {
   biometrics: `${STORAGE_PREFIX}:biometrics`,
   medications: `${STORAGE_PREFIX}:medications`,
   medicationLogs: `${STORAGE_PREFIX}:medication-logs`,
+  adHocMedications: `${STORAGE_PREFIX}:ad-hoc-medications`,
   telegramConfig: `${STORAGE_PREFIX}:telegram-config`,
 } as const;
 
