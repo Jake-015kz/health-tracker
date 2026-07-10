@@ -1,0 +1,164 @@
+.grid {
+  display: grid;
+  grid-template-columns: 80px repeat(7, 1fr);
+  gap: 1px;
+  background-color: var(--color-border);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  font-size: var(--font-size-xs);
+}
+
+.headerCell {
+  padding: var(--space-sm);
+  background-color: var(--color-bg);
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.headerToday {
+  background-color: var(--color-primary-glow);
+}
+
+.dayName {
+  font-size: var(--font-size-xs);
+}
+
+.dayDate {
+  font-size: 10px;
+  color: var(--color-text-muted);
+}
+
+.timeCell {
+  padding: var(--space-sm);
+  background-color: var(--color-bg);
+  font-weight: var(--font-weight-semibold);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.cell {
+  padding: var(--space-xs);
+  background-color: var(--color-surface);
+  min-height: 80px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cell:hover {
+  background-color: #f5f5f5;
+}
+
+.cellToday {
+  background-color: #f0fdf4;
+}
+
+.cellSelected {
+  background-color: #e8f5e9;
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+  z-index: 1;
+}
+
+.emptyCell {
+  color: var(--color-border);
+  font-size: var(--font-size-xs);
+  text-align: center;
+}
+
+.cellMed {
+  font-size: 10px;
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-bg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cellSkipped {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
+.cellAdded {
+  background-color: var(--color-success-light);
+  border: 1px solid var(--color-success);
+}
+
+.cellMedName {
+  line-height: 1.2;
+}
+
+.cellActions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 10;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  min-width: 160px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.cellActionBtn {
+  font-size: var(--font-size-xs);
+  text-align: left;
+  justify-content: flex-start;
+}
+
+.cellActionInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--font-size-xs);
+  padding: 2px 0;
+}
+
+.cellActionRemove {
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  padding: 2px 4px;
+}
+
+.cellActionRemove:hover {
+  color: var(--color-danger);
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 60px repeat(7, 1fr);
+    font-size: 9px;
+  }
+
+  .headerCell {
+    padding: var(--space-xs);
+  }
+
+  .cell {
+    min-height: 60px;
+    padding: 2px;
+  }
+
+  .cellMed {
+    font-size: 8px;
+    padding: 1px 2px;
+  }
+}

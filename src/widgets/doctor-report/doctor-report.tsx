@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import type { BiometricEntry } from "@/entities/biometrics";
 import type { Medication } from "@/entities/medication";
 import { Card, CardContent } from "@/shared/ui/card";
@@ -15,19 +13,13 @@ interface DoctorReportProps {
   biometrics: BiometricEntry[];
   medications?: Medication[];
   loading: boolean;
-  onEdit?: (entry: BiometricEntry) => void;
-  onDelete?: (id: string) => void;
 }
 
 export function DoctorReport({
   biometrics: entries,
   medications = [],
   loading,
-  onEdit,
-  onDelete,
 }: DoctorReportProps) {
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-
   const sortedEntries = [...entries].sort(
     (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
   );
@@ -112,15 +104,6 @@ export function DoctorReport({
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-  };
-
-  const handleDelete = (id: string) => {
-    if (deleteConfirm === id) {
-      onDelete?.(id);
-      setDeleteConfirm(null);
-    } else {
-      setDeleteConfirm(id);
-    }
   };
 
   if (loading) {

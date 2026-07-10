@@ -22,7 +22,6 @@ export function CsvImport({ onImport }: CsvImportProps) {
     const lines = text.trim().split("\n");
     if (lines.length < 2) throw new Error("Файл пуст или не содержит данных");
 
-    const header = lines[0].toLowerCase();
     const entries: Omit<BiometricEntry, "id" | "timestamp">[] = [];
 
     for (let i = 1; i < lines.length; i++) {

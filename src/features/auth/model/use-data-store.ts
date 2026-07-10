@@ -5,7 +5,7 @@ import type { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 
 import type { BiometricEntry } from "@/entities/biometrics";
-import type { Medication, MedicationLog, AdHocMedication } from "@/entities/medication";
+import type { Medication, MedicationLog, MedicationTime, AdHocMedication, MedicationOverride } from "@/entities/medication";
 import { storageKeys, loadFromStorage, saveToStorage } from "@/shared/lib/storage";
 import { generateId, getTodayString } from "@/shared/lib/constants";
 
@@ -82,6 +82,8 @@ export function useDataStore(user: User | null) {
         notes: (m.notes as string) ?? undefined,
         isActive: m.is_active as boolean,
         groupId: (m.group_id as string) ?? undefined,
+        sortOrder: (m.sort_order as number) ?? undefined,
+        overrides: (m.overrides as Record<string, MedicationOverride>) ?? undefined,
         createdAt: m.created_at as string,
       });
 
@@ -101,7 +103,7 @@ export function useDataStore(user: User | null) {
     };
 
     loadFromSupabase();
-  }, [user, supabase]);
+  }, [user, supabase, ensureProfile]);
 
   // ── Миграция localStorage → Supabase ──
   const migrateLocalStorage = useCallback(async () => {
@@ -149,6 +151,8 @@ export function useDataStore(user: User | null) {
             notes: m.notes,
             is_active: m.isActive,
             group_id: m.groupId,
+            sort_order: m.sortOrder,
+            overrides: m.overrides,
           })),
           { onConflict: "id" },
         );
@@ -274,6 +278,7 @@ export function useDataStore(user: User | null) {
       const newMed: Medication = {
         ...med,
         id: generateId(),
+        sortOrder: medications.length,
         createdAt: new Date().toISOString(),
       };
 
@@ -294,6 +299,7 @@ export function useDataStore(user: User | null) {
           notes: newMed.notes,
           is_active: newMed.isActive,
           group_id: newMed.groupId,
+          sort_order: newMed.sortOrder,
         });
         if (error) {
           console.error("Failed to save medication to Supabase:", error);
@@ -312,23 +318,26 @@ export function useDataStore(user: User | null) {
   const updateMedication = useCallback(
     async (id: string, updates: Partial<Medication>) => {
       if (user) {
+        const dbUpdates: Record<string, unknown> = {
+          name: updates.name,
+          active_ingredient: updates.activeIngredient,
+          dosage: updates.dosage,
+          purpose: updates.purpose,
+          stop_rule: updates.stopRule,
+          is_conditional: updates.isConditional,
+          condition_text: updates.conditionText,
+          is_from_hospital: updates.isFromHospital,
+          prescription_type: updates.prescriptionType,
+          frequency: updates.frequency,
+          notes: updates.notes,
+          is_active: updates.isActive,
+          group_id: updates.groupId,
+        };
+        if (updates.sortOrder !== undefined) dbUpdates.sort_order = updates.sortOrder;
+        if (updates.overrides !== undefined) dbUpdates.overrides = updates.overrides;
         const { error } = await supabase
           .from("medications")
-          .update({
-            name: updates.name,
-            active_ingredient: updates.activeIngredient,
-            dosage: updates.dosage,
-            purpose: updates.purpose,
-            stop_rule: updates.stopRule,
-            is_conditional: updates.isConditional,
-            condition_text: updates.conditionText,
-            is_from_hospital: updates.isFromHospital,
-            prescription_type: updates.prescriptionType,
-            frequency: updates.frequency,
-            notes: updates.notes,
-            is_active: updates.isActive,
-            group_id: updates.groupId,
-          })
+          .update(dbUpdates)
           .eq("id", id);
         if (error) {
           console.error("Failed to update medication:", error);
@@ -362,6 +371,94 @@ export function useDataStore(user: User | null) {
       setMedications((prev) => prev.filter((m) => m.id !== id));
     },
     [user, medications, supabase],
+  );
+
+  // ── Удаление лекарства из конкретного времени ──
+  const removeMedicationTime = useCallback(
+    async (id: string, time: MedicationTime) => {
+      const med = medications.find((m) => m.id === id);
+      if (!med) return;
+
+      const newFrequency = med.frequency.filter((f) => f !== time);
+
+      if (newFrequency.length === 0) {
+        // Все времена удалены — удаляем лекарство целиком
+        await deleteMedication(id);
+        return;
+      }
+
+      if (user) {
+        const { error } = await supabase
+          .from("medications")
+          .update({ frequency: newFrequency })
+          .eq("id", id);
+        if (error) {
+          console.error("Failed to update medication frequency:", error);
+          throw new Error(`Ошибка обновления: ${error.message}`);
+        }
+      } else {
+        const updated = medications.map((m) =>
+          m.id === id ? { ...m, frequency: newFrequency } : m,
+        );
+        saveToStorage(storageKeys.medications, updated);
+      }
+
+      setMedications((prev) =>
+        prev.map((m) => (m.id === id ? { ...m, frequency: newFrequency } : m)),
+      );
+    },
+    [user, medications, supabase, deleteMedication],
+  );
+
+  // ── Overrides: отклонения от шаблона для конкретного дня ──
+  const setOverride = useCallback(
+    async (medicationId: string, date: string, override: MedicationOverride | null) => {
+      const med = medications.find((m) => m.id === medicationId);
+      if (!med) return;
+
+      const newOverrides = { ...med.overrides };
+      if (override === null) {
+        delete newOverrides[date];
+      } else {
+        newOverrides[date] = override;
+      }
+
+      const update = { overrides: newOverrides };
+
+      if (user) {
+        const { error } = await supabase
+          .from("medications")
+          .update({ overrides: newOverrides })
+          .eq("id", medicationId);
+        if (error) {
+          console.error("Failed to update overrides:", error);
+          throw new Error(`Ошибка обновления: ${error.message}`);
+        }
+      } else {
+        const updated = medications.map((m) =>
+          m.id === medicationId ? { ...m, ...update } : m,
+        );
+        saveToStorage(storageKeys.medications, updated);
+      }
+
+      setMedications((prev) =>
+        prev.map((m) => (m.id === medicationId ? { ...m, ...update } : m)),
+      );
+    },
+    [user, medications, supabase],
+  );
+
+  // ── Кнопка "Пропустить" — удобная обёртка над setOverride ──
+  const skipMedicationForDay = useCallback(
+    (medicationId: string, date: string) =>
+      setOverride(medicationId, date, { skip: true }),
+    [setOverride],
+  );
+
+  const unskipMedicationForDay = useCallback(
+    (medicationId: string, date: string) =>
+      setOverride(medicationId, date, null),
+    [setOverride],
   );
 
   // ── CRUD: Логи приёма ──
@@ -557,6 +654,10 @@ export function useDataStore(user: User | null) {
     addMedication,
     updateMedication,
     deleteMedication,
+    removeMedicationTime,
+    setOverride,
+    skipMedicationForDay,
+    unskipMedicationForDay,
     toggleMedLog,
     addAdHocMedication,
     toggleAdHocMedication,

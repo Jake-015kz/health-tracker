@@ -9,6 +9,7 @@ import { ExportData } from "@/features/export-data";
 import { Dashboard } from "@/widgets/dashboard";
 import { DoctorReport } from "@/widgets/doctor-report";
 import { AdherenceHeatmap } from "@/widgets/heatmap/heatmap";
+import { WeeklySchedule } from "@/features/medication-schedule/weekly-schedule";
 import { ProfileForm } from "@/features/profile/profile-form";
 import { CsvImport } from "@/features/import-data/csv-import";
 import {
@@ -94,22 +95,33 @@ export default function DashboardPage() {
             onAddAdHoc={store.addAdHocMedication}
             onToggleAdHoc={store.toggleAdHocMedication}
             onDeleteAdHoc={store.deleteAdHocMedication}
+            onSkipMedication={store.skipMedicationForDay}
+            onUnskipMedication={store.unskipMedicationForDay}
           />
         )}
         {activeTab === "schedule" && (
-          <MedicationChecklist
-            mode="schedule"
-            medications={store.medications}
-            medicationLogs={store.medicationLogs}
-            adHocMedications={store.adHocMedications}
-            onAddMedication={store.addMedication}
-            onUpdateMedication={store.updateMedication}
-            onDeleteMedication={store.deleteMedication}
-            onToggleLog={store.toggleMedLog}
-            onAddAdHoc={store.addAdHocMedication}
-            onToggleAdHoc={store.toggleAdHocMedication}
-            onDeleteAdHoc={store.deleteAdHocMedication}
-          />
+          <>
+            <MedicationChecklist
+              mode="schedule"
+              medications={store.medications}
+              medicationLogs={store.medicationLogs}
+              adHocMedications={store.adHocMedications}
+              onAddMedication={store.addMedication}
+              onUpdateMedication={store.updateMedication}
+              onDeleteMedication={store.deleteMedication}
+              onRemoveFromTime={store.removeMedicationTime}
+              onToggleLog={store.toggleMedLog}
+              onAddAdHoc={store.addAdHocMedication}
+              onToggleAdHoc={store.toggleAdHocMedication}
+              onDeleteAdHoc={store.deleteAdHocMedication}
+            />
+            <WeeklySchedule
+              medications={store.medications}
+              onUpdateMedication={store.updateMedication}
+              onSkipMedication={store.skipMedicationForDay}
+              onUnskipMedication={store.unskipMedicationForDay}
+            />
+          </>
         )}
         {activeTab === "report" && (
           <DoctorReport

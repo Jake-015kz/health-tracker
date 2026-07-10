@@ -1,5 +1,10 @@
 export type MedicationTime = "morning" | "afternoon" | "evening";
 
+export interface MedicationOverride {
+  skip?: boolean;
+  added?: boolean;
+}
+
 export interface Medication {
   id: string;
   name: string;
@@ -15,6 +20,8 @@ export interface Medication {
   notes?: string;
   isActive: boolean;
   groupId?: string;
+  sortOrder?: number;
+  overrides?: Record<string, MedicationOverride>;
   createdAt: string;
 }
 

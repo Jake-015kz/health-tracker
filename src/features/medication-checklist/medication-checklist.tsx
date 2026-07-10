@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 
 import type { Medication, MedicationLog, MedicationTime, AdHocMedication } from "@/entities/medication";
 import { TIME_LABELS, TIME_ICONS, MEDICATION_PRESETS, type MedicationPreset } from "@/entities/medication";
@@ -21,10 +21,13 @@ interface MedicationChecklistProps {
   onAddMedication: (medication: Omit<Medication, "id" | "createdAt">) => Promise<Medication>;
   onUpdateMedication: (id: string, updates: Partial<Medication>) => Promise<void>;
   onDeleteMedication: (id: string) => Promise<void>;
+  onRemoveFromTime?: (id: string, time: MedicationTime) => Promise<void>;
   onToggleLog: (medicationId: string, time: MedicationTime) => Promise<void>;
   onAddAdHoc: (med: Omit<AdHocMedication, "id" | "createdAt" | "isTaken">) => Promise<AdHocMedication>;
   onToggleAdHoc: (id: string) => Promise<void>;
   onDeleteAdHoc: (id: string) => Promise<void>;
+  onSkipMedication?: (id: string, date: string) => Promise<void>;
+  onUnskipMedication?: (id: string, date: string) => Promise<void>;
 }
 
 export function MedicationChecklist({
@@ -35,10 +38,13 @@ export function MedicationChecklist({
   onAddMedication,
   onUpdateMedication: _onUpdateMedication,
   onDeleteMedication,
+  onRemoveFromTime,
   onToggleLog,
   onAddAdHoc,
   onToggleAdHoc,
   onDeleteAdHoc,
+  onSkipMedication,
+  onUnskipMedication,
 }: MedicationChecklistProps) {
   const today = getTodayString();
   const [showForm, setShowForm] = useState(false);
@@ -49,9 +55,14 @@ export function MedicationChecklist({
   const [editingMed, setEditingMed] = useState<Medication | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [showPresets, setShowPresets] = useState(false);
+  const [draggedId, setDraggedId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
 
   const todayLogs = medicationLogs.filter((l) => l.date === today);
   const todayAdHoc = adHocMedications.filter((m) => m.date === today);
+
+  const isSkippedForDate = (med: Medication, dateStr: string) =>
+    med.overrides?.[dateStr]?.skip === true;
 
   // Adherence Score за 7 дней
   const adherenceScore = useMemo(() => {
@@ -70,6 +81,7 @@ export function MedicationChecklist({
         const date = new Date(now);
         date.setDate(date.getDate() - d);
         const dateStr = date.toISOString().split("T")[0];
+        if (isSkippedForDate(med, dateStr)) continue;
         for (const time of freq) {
           totalSlots++;
           if (
@@ -109,8 +121,9 @@ export function MedicationChecklist({
     };
 
     const processedGroups = new Set<string>();
+    const sorted = [...medications].sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
 
-    for (const med of medications) {
+    for (const med of sorted) {
       if (med.groupId) {
         if (processedGroups.has(med.groupId)) continue;
         processedGroups.add(med.groupId);
@@ -132,6 +145,7 @@ export function MedicationChecklist({
     let count = 0;
     const processedGroups = new Set<string>();
     for (const med of medications) {
+      if (isSkippedForDate(med, today)) continue;
       if (med.groupId) {
         if (processedGroups.has(med.groupId)) continue;
         processedGroups.add(med.groupId);
@@ -141,12 +155,13 @@ export function MedicationChecklist({
       }
     }
     return count;
-  }, [medications]);
+  }, [medications, today]);
 
   const takenCount = useMemo(() => {
     let count = 0;
     const processedGroups = new Set<string>();
     for (const med of medications) {
+      if (isSkippedForDate(med, today)) continue;
       if (med.groupId) {
         if (processedGroups.has(med.groupId)) continue;
         processedGroups.add(med.groupId);
@@ -160,7 +175,7 @@ export function MedicationChecklist({
       }
     }
     return count;
-  }, [medications, todayLogs]);
+  }, [medications, today]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggleFrequency = (time: MedicationTime) => {
     setNewFrequency((prev) =>
@@ -264,6 +279,53 @@ export function MedicationChecklist({
     }
   };
 
+  const handleDragStart = useCallback(
+    (e: React.DragEvent, medId: string) => {
+      setDraggedId(medId);
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", medId);
+    },
+    [],
+  );
+
+  const handleDragOver = useCallback(
+    (e: React.DragEvent, medId: string) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      setDragOverId(medId);
+    },
+    [],
+  );
+
+  const handleDragLeave = useCallback(() => {
+    setDragOverId(null);
+  }, []);
+
+  const handleDrop = useCallback(
+    async (e: React.DragEvent, targetId: string) => {
+      e.preventDefault();
+      setDraggedId(null);
+      setDragOverId(null);
+
+      const sourceId = draggedId;
+      if (!sourceId || sourceId === targetId) return;
+
+      const sourceIndex = medications.findIndex((m) => m.id === sourceId);
+      const targetIndex = medications.findIndex((m) => m.id === targetId);
+      if (sourceIndex === -1 || targetIndex === -1) return;
+
+      const reordered = [...medications];
+      const [moved] = reordered.splice(sourceIndex, 1);
+      reordered.splice(targetIndex, 0, moved);
+
+      const updated = reordered.map((m, i) => ({ ...m, sortOrder: i }));
+      for (const med of updated) {
+        await _onUpdateMedication(med.id, { sortOrder: med.sortOrder });
+      }
+    },
+    [draggedId, medications, _onUpdateMedication],
+  );
+
   const renderMedItem = (
     item: Medication | { isGroup: true; groupId: string; meds: Medication[] },
     time: MedicationTime,
@@ -313,10 +375,27 @@ export function MedicationChecklist({
 
     const med = item as Medication;
     const taken = isTaken(med.id, time);
+    const isSkipped = med.overrides?.[today]?.skip === true;
+    const isDragging = draggedId === med.id;
+    const isDragOver = dragOverId === med.id;
     return (
-      <div key={med.id} className={styles.medicationItem}>
-        <div className={styles.medicationInfo}>
-          <div className={styles.medicationName}>{med.name}</div>
+      <div
+        key={med.id}
+        className={`${styles.medicationItem} ${isSkipped ? styles.skipped : ""} ${isDragging ? styles.dragging : ""} ${isDragOver ? styles.dragOver : ""}`}
+        draggable={mode === "schedule"}
+        onDragStart={(e) => handleDragStart(e, med.id)}
+        onDragOver={(e) => handleDragOver(e, med.id)}
+        onDragLeave={handleDragLeave}
+        onDrop={(e) => handleDrop(e, med.id)}
+      >
+        {mode === "schedule" && (
+          <span className={styles.dragHandle} title="Перетащить для изменения порядка">⠿</span>
+        )}
+        <div className={`${styles.medicationInfo} ${isSkipped ? styles.skippedText : ""}`}>
+          <div className={styles.medicationName}>
+            {isSkipped && <span className={styles.skippedBadge}>Пропущено</span>}
+            {med.name}
+          </div>
           <div className={styles.medicationDosage}>{med.dosage}</div>
           {med.isConditional && med.conditionText && (
             <div className={styles.conditionBadge}>{med.conditionText}</div>
@@ -329,11 +408,33 @@ export function MedicationChecklist({
               className={styles.checkbox}
               checked={taken}
               onChange={() => onToggleLog(med.id, time)}
+              disabled={isSkipped}
             />
             {taken ? "Принято" : "Отметить"}
           </label>
+          {mode === "checklist" && onSkipMedication && onUnskipMedication && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className={isSkipped ? styles.unskipBtn : styles.skipBtn}
+              onClick={() => isSkipped ? onUnskipMedication(med.id, today) : onSkipMedication(med.id, today)}
+            >
+              {isSkipped ? "Отменить" : "Пропустить"}
+            </Button>
+          )}
           {mode === "schedule" && (
             <div className={styles.actions}>
+              {onRemoveFromTime && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={styles.removeTimeBtn}
+                  onClick={() => onRemoveFromTime(med.id, time)}
+                  title={`Убрать из ${TIME_LABELS[time].toLowerCase()}`}
+                >
+                  ⊘
+                </Button>
+              )}
               <Button variant="ghost" size="sm" onClick={() => startEdit(med)}>
                 ✏️
               </Button>
@@ -355,7 +456,15 @@ export function MedicationChecklist({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{mode === "schedule" ? "Настройки расписания" : "Лекарства на сегодня"}</CardTitle>
+        <CardTitle>
+          {mode === "schedule" ? "Настройки расписания" : "Лекарства на сегодня"}
+        </CardTitle>
+        {mode === "schedule" && (
+          <p className={styles.scheduleSubtitle}>
+            Расписание повторяется каждый день. Изменения применяются ко всем дням.
+            Чтобы изменить конкретный день — откройте недельный календарь.
+          </p>
+        )}
       </CardHeader>
       <CardContent>
         <div className={styles.container}>

@@ -1,6 +1,6 @@
 # Health Tracker
 
-Приложение для ежедневного мониторинга здоровья после инсульта. Контроль давления, пульса, уровня сахара и приёма лекарств.
+Ежедневный мониторинг здоровья после инсульта. Контроль давления, пульса, сахара и приёма лекарств.
 
 **Ссылка:** [health-tracker-seven-navy.vercel.app](https://health-tracker-seven-navy.vercel.app)
 
@@ -15,24 +15,27 @@
 - Графики и тренды за неделю, месяц и квартал
 
 ### Лекарства
-- Ежедневный чеклист приёма лекарств, сгруппированный по времени суток (утро / день / вечер)
+- Ежедневный чеклист приёма лекарств, сгруппированный по времени суток
 - Прогресс-бар выполнения на день
-- Ad-hoc лекарства — добавить таблетку на сегодня (например, от высокого давления) без сохранения в расписание
-- Группы лекарств «ИЛИ» — достаточно принять любой из вариантов (Глюконил / Глюкованс)
-- Напоминания о приёме лекарств через push-уведомления
+- Ad-hoc лекарства — на один раз, без сохранения в расписание
+- Группы «ИЛИ» — достаточно принять любой из вариантов
+- Пропуск приёма на конкретный день
+- Перетаскивание для сортировки
+- Недельный календарь для редактирования расписания по дням
 
 ### Расписание
-- Настройка ежедневного расписания лекарств (какие лекарства, в какое время)
+- Настройка ежедневного расписания (утро / день / вечер)
+- Недельный календарь с переопределениями
 - Каталог пресетов для быстрого добавления
-- Группировка по времени суток с эмодзи-индикаторами
 
 ### Отчёт для врача
-- Автоматическая сводка показателей за период
-- Экспорт в PDF для передачи лечащему врачу
+- Автоматическая сводка за период
+- Экспорт в PDF
+- Печать и отправка на email
 
 ### Приватность
-- Данные хранятся локально (localStorage) или в защищённом облаке Supabase
-- Аутентификация через email
+- Данные в защищённом облаке Supabase
+- Аутентификация по email
 - Row Level Security — каждый видит только свои данные
 
 ---
@@ -55,7 +58,7 @@
 
 ## Быстрый старт
 
-### 1. Клонировать репозиторий
+### 1. Клонировать
 
 ```bash
 git clone https://github.com/Jake-015kz/health-tracker.git
@@ -70,7 +73,7 @@ npm install
 
 ### 3. Настроить переменные окружения
 
-Создать файл `.env.local`:
+Создать `.env.local`:
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
@@ -78,31 +81,25 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
-### 4. Выполнить миграцию базы данных
+### 4. Выполнить миграции
 
-В Supabase Dashboard → SQL Editor вставить содержимое файла:
+В Supabase Dashboard → SQL Editor выполнить:
 
-```
-supabase/migrations/20250710_add_ad_hoc_medications.sql
+```sql
+ALTER TABLE medications ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
+ALTER TABLE medications ADD COLUMN IF NOT EXISTS overrides JSONB DEFAULT '{}'::jsonb;
 ```
 
 ### 5. Настроить Supabase Auth
 
-1. **Authentication → URL Configuration → Site URL:**
-   - Локально: `http://localhost:3000`
-   - Продакшн: `https://health-tracker-seven-navy.vercel.app`
-
-2. **Authentication → URL Configuration → Redirect URLs:**
-   - Добавить `http://localhost:3000/**`
-   - Добавить `https://health-tracker-seven-navy.vercel.app/**`
+- **Site URL:** `http://localhost:3000` (локально) / `https://health-tracker-seven-navy.vercel.app` (продакшн)
+- **Redirect URLs:** `http://localhost:3000/**`, `https://health-tracker-seven-navy.vercel.app/**`
 
 ### 6. Запустить
 
 ```bash
 npm run dev
 ```
-
-Открыть [http://localhost:3000](http://localhost:3000)
 
 ---
 
@@ -114,7 +111,7 @@ src/
 │   ├── api/                # API routes
 │   │   ├── ai/             # AI-описание лекарств
 │   │   └── auth/           # Аутентификация
-│   ├── auth/               # Callback для подтверждения email
+│   ├── auth/               # Callback подтверждения email
 │   ├── dashboard/          # Основной экран
 │   ├── login/              # Вход
 │   ├── signup/             # Регистрация
@@ -123,14 +120,14 @@ src/
 │   ├── biometrics/         # Биометрические данные
 │   └── medication/         # Лекарства и расписание
 ├── features/               # Фичи (UI + логика)
-│   ├── auth/               # Аутентификация и хранилище данных
+│   ├── auth/               # Аутентификация и хранилище
 │   ├── export-data/        # Экспорт данных
 │   ├── log-metrics/        # Форма ввода измерений
 │   └── medication-checklist/ # Чеклист лекарств
 ├── shared/                 # Общие утилиты
 │   ├── lib/                # Библиотечный код
 │   └── ui/                 # Переиспользуемые компоненты
-└── widgets/                # Виджеты (составные компоненты)
+└── widgets/                # Виджеты
     ├── dashboard/          # Обзорная панель
     ├── doctor-report/      # Отчёт для врача
     └── layout/             # Layout (sidebar, bottom-nav)
@@ -141,13 +138,13 @@ src/
 ## Команды
 
 ```bash
-npm run dev          # Запуск dev-сервера
-npm run build        # Сборка для продакшна
-npm run start        # Запуск продакшн-сервера
-npm run lint         # Проверка ESLint
+npm run dev          # Dev-сервер
+npm run build        # Сборка
+npm run start        # Продакшн-сервер
+npm run lint         # ESLint
 npm run lint:fix     # Автоисправление ESLint
-npm run typecheck    # Проверка TypeScript
-npm run format       # Форматирование Prettier
+npm run typecheck    # TypeScript
+npm run format       # Prettier
 ```
 
 ---
@@ -155,9 +152,9 @@ npm run format       # Форматирование Prettier
 ## Деплой на Vercel
 
 1. Импортировать репозиторий на [vercel.com/new](https://vercel.com/new)
-2. Vercel автоматически определит Next.js и соберёт проект
-3. Добавить переменные окружения в настройках проекта на Vercel
-4. Выполнить SQL миграцию в Supabase
+2. Vercel автоматически определит Next.js
+3. Добавить переменные окружения в настройках проекта
+4. Выполнить SQL-миграции в Supabase
 5. Настроить Site URL и Redirect URLs в Supabase
 
 ---
