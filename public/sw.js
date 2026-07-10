@@ -1,4 +1,4 @@
-const CACHE_NAME = "health-tracker-v1";
+const CACHE_NAME = "health-tracker-v2";
 const STATIC_ASSETS = ["/", "/dashboard", "/login", "/signup"];
 
 self.addEventListener("install", (event) => {
@@ -20,16 +20,13 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const fetched = fetch(event.request).then((response) => {
-        if (response.ok) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-        }
-        return response;
-      });
-      return cached || fetched;
-    }),
+    fetch(event.request).then((response) => {
+      if (response.ok) {
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+      }
+      return response;
+    }).catch(() => caches.match(event.request)),
   );
 });
 
