@@ -1,22 +1,22 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState, useCallback } from "react";
 import { LayoutDashboard, Activity, Pill, FileText, Download } from "lucide-react";
 
 import styles from "./bottom-nav.module.css";
 
 const NAV_ITEMS = [
-  { href: "/dashboard", hash: "", label: "Обзор", icon: LayoutDashboard },
-  { href: "/dashboard#log", hash: "log", label: "Измерения", icon: Activity },
-  { href: "/dashboard#medications", hash: "medications", label: "Лекарства", icon: Pill },
-  { href: "/dashboard#report", hash: "report", label: "Отчёт", icon: FileText },
-  { href: "/dashboard#export", hash: "export", label: "Экспорт", icon: Download },
+  { hash: "", label: "Обзор", icon: LayoutDashboard },
+  { hash: "log", label: "Измерения", icon: Activity },
+  { hash: "medications", label: "Лекарства", icon: Pill },
+  { hash: "report", label: "Отчёт", icon: FileText },
+  { hash: "export", label: "Экспорт", icon: Download },
 ] as const;
 
 export function BottomNav() {
   const pathname = usePathname();
+  const router = useRouter();
   const [currentHash, setCurrentHash] = useState("");
 
   useEffect(() => {
@@ -28,6 +28,20 @@ export function BottomNav() {
     return () => window.removeEventListener("hashchange", updateHash);
   }, []);
 
+  const handleNavClick = useCallback(
+    (e: React.MouseEvent, hash: string) => {
+      e.preventDefault();
+      if (pathname !== "/dashboard") {
+        router.push(`/dashboard${hash ? `#${hash}` : ""}`);
+      } else {
+        const url = hash ? `/dashboard#${hash}` : "/dashboard";
+        window.history.replaceState(null, "", url);
+        window.dispatchEvent(new HashChangeEvent("hashchange"));
+      }
+    },
+    [pathname, router],
+  );
+
   return (
     <nav className={styles.bottomNav}>
       {NAV_ITEMS.map((item) => {
@@ -35,14 +49,15 @@ export function BottomNav() {
         const isDashboard = pathname === "/dashboard";
         const isActive = isDashboard && currentHash === item.hash;
         return (
-          <Link
-            key={item.href}
-            href={item.href}
+          <a
+            key={item.hash}
+            href={`/dashboard${item.hash ? `#${item.hash}` : ""}`}
+            onClick={(e) => handleNavClick(e, item.hash)}
             className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
           >
             <Icon className={styles.navIcon} />
             <span className={styles.navLabel}>{item.label}</span>
-          </Link>
+          </a>
         );
       })}
     </nav>

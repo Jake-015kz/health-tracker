@@ -151,6 +151,13 @@ export function useDataStore(user: User | null) {
     localStorage.removeItem(storageKeys.medicationLogs);
   }, [user, supabase]);
 
+  // ── Автоматическая миграция при входе ──
+  useEffect(() => {
+    if (user && !loading) {
+      migrateLocalStorage();
+    }
+  }, [user, loading, migrateLocalStorage]);
+
   // ── CRUD: Биометрия ──
   const addBiometric = useCallback(
     async (entry: Omit<BiometricEntry, "id" | "timestamp">) => {

@@ -26,15 +26,6 @@ const HASH_TO_TAB: Record<string, TabId> = {
   export: "export",
 };
 
-const TABS: { id: TabId; label: string }[] = [
-  { id: "overview", label: "Обзор" },
-  { id: "log", label: "Новое измерение" },
-  { id: "medications", label: "Лекарства" },
-  { id: "schedule", label: "Расписание" },
-  { id: "report", label: "Отчёт для врача" },
-  { id: "export", label: "Экспорт" },
-];
-
 function getTabFromHash(): TabId {
   if (typeof window === "undefined") return "overview";
   const hash = window.location.hash.replace("#", "");
@@ -66,29 +57,8 @@ export default function DashboardPage() {
     }
   }, [store.medications, store.loading]);
 
-  const handleTabClick = (tabId: TabId) => {
-    setActiveTab(tabId);
-    if (tabId === "overview") {
-      window.history.replaceState(null, "", "/dashboard");
-    } else {
-      window.history.replaceState(null, "", `/dashboard#${tabId}`);
-    }
-  };
-
   return (
     <main className={styles.page}>
-      <select
-        className={styles.tabsMobile}
-        value={activeTab}
-        onChange={(e) => handleTabClick(e.target.value as TabId)}
-      >
-        {TABS.map((tab) => (
-          <option key={tab.id} value={tab.id}>
-            {tab.label}
-          </option>
-        ))}
-      </select>
-
       <div className={styles.content}>
         {activeTab === "overview" && (
           <Dashboard biometrics={store.biometrics} loading={store.loading} />

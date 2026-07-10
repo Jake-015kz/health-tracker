@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   LineChart,
   Line,
@@ -26,6 +26,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { CRITICAL_THRESHOLDS } from "@/shared/lib/constants";
 
 import styles from "./dashboard.module.css";
+
+const PERIODS = [
+  { days: 3, label: "3 дн." },
+  { days: 7, label: "7 дн." },
+  { days: 30, label: "30 дн." },
+  { days: 90, label: "90 дн." },
+  { days: 180, label: "180 дн." },
+  { days: 365, label: "1 год" },
+  { days: Infinity, label: "Всё время" },
+] as const;
 
 interface ChartDataPoint {
   date: string;
@@ -85,6 +95,15 @@ function StatCard({
 }
 
 export function Dashboard({ biometrics: entries, loading }: DashboardProps) {
+  const [periodDays, setPeriodDays] = useState<number>(7);
+
+  const filteredEntries = useMemo(() => {
+    if (periodDays === Infinity) return entries;
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - periodDays);
+    return entries.filter((e) => new Date(e.date) >= cutoff);
+  }, [entries, periodDays]);
+
   const chartData = useMemo<ChartDataPoint[]>(() => {
     return entries
       .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
@@ -102,30 +121,33 @@ export function Dashboard({ biometrics: entries, loading }: DashboardProps) {
   const latestEntry = entries.length > 0 ? entries[entries.length - 1] : null;
 
   const avgBP = useMemo(() => {
-    if (entries.length === 0) return null;
-    const recent = entries.slice(-7);
-    const sys = recent.reduce((s, e) => s + (e.bloodPressure?.systolic ?? 0), 0) / recent.length;
-    const dia = recent.reduce((s, e) => s + (e.bloodPressure?.diastolic ?? 0), 0) / recent.length;
+    if (filteredEntries.length === 0) return null;
+    const withBP = filteredEntries.filter((e) => e.bloodPressure);
+    if (withBP.length === 0) return null;
+    const sys = withBP.reduce((s, e) => s + (e.bloodPressure?.systolic ?? 0), 0) / withBP.length;
+    const dia = withBP.reduce((s, e) => s + (e.bloodPressure?.diastolic ?? 0), 0) / withBP.length;
     return { systolic: Math.round(sys), diastolic: Math.round(dia) };
-  }, [entries]);
+  }, [filteredEntries]);
 
   const avgPulse = useMemo(() => {
-    if (entries.length === 0) return null;
-    const recent = entries.filter((e) => e.pulse).slice(-7);
-    if (recent.length === 0) return null;
-    return Math.round(recent.reduce((s, e) => s + (e.pulse ?? 0), 0) / recent.length);
-  }, [entries]);
+    if (filteredEntries.length === 0) return null;
+    const withPulse = filteredEntries.filter((e) => e.pulse);
+    if (withPulse.length === 0) return null;
+    return Math.round(withPulse.reduce((s, e) => s + (e.pulse ?? 0), 0) / withPulse.length);
+  }, [filteredEntries]);
 
   const avgSugar = useMemo(() => {
-    if (entries.length === 0) return null;
-    const recent = entries.filter((e) => e.bloodSugar !== undefined).slice(-7);
-    if (recent.length === 0) return null;
+    if (filteredEntries.length === 0) return null;
+    const withSugar = filteredEntries.filter((e) => e.bloodSugar !== undefined);
+    if (withSugar.length === 0) return null;
     return (
       Math.round(
-        (recent.reduce((s, e) => s + (e.bloodSugar ?? 0), 0) / recent.length) * 10,
+        (withSugar.reduce((s, e) => s + (e.bloodSugar ?? 0), 0) / withSugar.length) * 10,
       ) / 10
     );
-  }, [entries]);
+  }, [filteredEntries]);
+
+  const periodLabel = PERIODS.find((p) => p.days === periodDays)?.label ?? "Всё время";
 
   if (loading) {
     return (
@@ -204,30 +226,50 @@ export function Dashboard({ biometrics: entries, loading }: DashboardProps) {
         />
       </div>
 
-      {avgBP && (
+      <div className={styles.periodSelector}>
+        {PERIODS.map((p) => (
+          <button
+            key={p.days}
+            className={`${styles.periodBtn} ${periodDays === p.days ? styles.periodBtnActive : ""}`}
+            onClick={() => setPeriodDays(p.days)}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+
+      {(avgBP || avgPulse || avgSugar) && (
         <div className={styles.avgRow}>
-          <div className={styles.avgItem}>
+          <div className={styles.avgLabel}>
             <TrendingUp size={14} />
-            <span>
-              Среднее за 7 дней: <strong>{avgBP.systolic}/{avgBP.diastolic}</strong>
-            </span>
+            Среднее за {periodLabel}:
           </div>
-          {avgPulse && (
-            <div className={styles.avgItem}>
-              <Activity size={14} />
-              <span>
-                Пульс: <strong>{avgPulse}</strong> уд/мин
-              </span>
-            </div>
-          )}
-          {avgSugar && (
-            <div className={styles.avgItem}>
-              <Droplets size={14} />
-              <span>
-                Сахар: <strong>{avgSugar}</strong> ммоль/л
-              </span>
-            </div>
-          )}
+          <div className={styles.avgValues}>
+            {avgBP && (
+              <div className={styles.avgItem}>
+                <Heart size={14} />
+                <span>
+                  Давление: <strong>{avgBP.systolic}/{avgBP.diastolic}</strong>
+                </span>
+              </div>
+            )}
+            {avgPulse && (
+              <div className={styles.avgItem}>
+                <Activity size={14} />
+                <span>
+                  Пульс: <strong>{avgPulse}</strong> уд/мин
+                </span>
+              </div>
+            )}
+            {avgSugar && (
+              <div className={styles.avgItem}>
+                <Droplets size={14} />
+                <span>
+                  Сахар: <strong>{avgSugar}</strong> ммоль/л
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       )}
 

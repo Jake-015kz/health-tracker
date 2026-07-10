@@ -80,15 +80,64 @@
   margin-left: 2px;
 }
 
+/* === Period Selector === */
+.periodSelector {
+  display: flex;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+  padding: var(--space-xs);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.periodBtn {
+  padding: 6px 12px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.periodBtn:hover {
+  color: var(--color-text);
+  background: rgba(51, 203, 120, 0.08);
+}
+
+.periodBtnActive {
+  color: var(--color-primary-dark);
+  background: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
 /* === Average Row === */
 .avgRow {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-md);
+  flex-direction: column;
+  gap: var(--space-sm);
   padding: var(--space-md) var(--space-lg);
   background: rgba(51, 203, 120, 0.06);
   border: 1px solid rgba(51, 203, 120, 0.15);
   border-radius: var(--radius-lg);
+}
+
+.avgLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.avgValues {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
 }
 
 .avgItem {
