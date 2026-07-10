@@ -35,6 +35,10 @@ export function useDataStore(user: User | null) {
         supabase.from("medication_logs").select("*").eq("user_id", user.id),
       ]);
 
+      if (bioRes.error) console.error("Bio load error:", bioRes.error);
+      if (medRes.error) console.error("Med load error:", medRes.error);
+      if (logRes.error) console.error("Log load error:", logRes.error);
+
       const mapBio = (e: Record<string, unknown>): BiometricEntry => ({
         id: e.id as string,
         date: e.date as string,
@@ -95,60 +99,68 @@ export function useDataStore(user: User | null) {
 
     if (localBio.length === 0 && localMeds.length === 0 && localLogs.length === 0) return;
 
-    if (localBio.length > 0) {
-      await supabase.from("biometric_entries").insert(
-        localBio.map((e) => ({
-          id: e.id,
-          user_id: user.id,
-          date: e.date,
-          time_of_day: e.timeOfDay,
-          systolic: e.bloodPressure?.systolic,
-          diastolic: e.bloodPressure?.diastolic,
-          pulse: e.pulse,
-          blood_sugar: e.bloodSugar,
-          notes: e.notes,
-        })),
-      );
-    }
+    try {
+      if (localBio.length > 0) {
+        await supabase.from("biometric_entries").upsert(
+          localBio.map((e) => ({
+            id: e.id,
+            user_id: user.id,
+            date: e.date,
+            time_of_day: e.timeOfDay,
+            systolic: e.bloodPressure?.systolic,
+            diastolic: e.bloodPressure?.diastolic,
+            pulse: e.pulse,
+            blood_sugar: e.bloodSugar,
+            notes: e.notes,
+          })),
+          { onConflict: "id" },
+        );
+      }
 
-    if (localMeds.length > 0) {
-      await supabase.from("medications").insert(
-        localMeds.map((m) => ({
-          id: m.id,
-          user_id: user.id,
-          name: m.name,
-          active_ingredient: m.activeIngredient,
-          dosage: m.dosage,
-          purpose: m.purpose,
-          stop_rule: m.stopRule,
-          is_conditional: m.isConditional,
-          condition_text: m.conditionText,
-          is_from_hospital: m.isFromHospital,
-          prescription_type: m.prescriptionType,
-          frequency: m.frequency,
-          notes: m.notes,
-          is_active: m.isActive,
-        })),
-      );
-    }
+      if (localMeds.length > 0) {
+        await supabase.from("medications").upsert(
+          localMeds.map((m) => ({
+            id: m.id,
+            user_id: user.id,
+            name: m.name,
+            active_ingredient: m.activeIngredient,
+            dosage: m.dosage,
+            purpose: m.purpose,
+            stop_rule: m.stopRule,
+            is_conditional: m.isConditional,
+            condition_text: m.conditionText,
+            is_from_hospital: m.isFromHospital,
+            prescription_type: m.prescriptionType,
+            frequency: m.frequency,
+            notes: m.notes,
+            is_active: m.isActive,
+            group_id: m.groupId,
+          })),
+          { onConflict: "id" },
+        );
+      }
 
-    if (localLogs.length > 0) {
-      await supabase.from("medication_logs").insert(
-        localLogs.map((l) => ({
-          id: l.id,
-          user_id: user.id,
-          medication_id: l.medicationId,
-          scheduled_time: l.scheduledTime,
-          is_taken: l.isTaken,
-          taken_at: l.takenAt,
-          date: l.date,
-        })),
-      );
-    }
+      if (localLogs.length > 0) {
+        await supabase.from("medication_logs").upsert(
+          localLogs.map((l) => ({
+            id: l.id,
+            user_id: user.id,
+            medication_id: l.medicationId,
+            scheduled_time: l.scheduledTime,
+            is_taken: l.isTaken,
+            taken_at: l.takenAt,
+            date: l.date,
+          })),
+          { onConflict: "id" },
+        );
+      }
 
-    localStorage.removeItem(storageKeys.biometrics);
-    localStorage.removeItem(storageKeys.medications);
-    localStorage.removeItem(storageKeys.medicationLogs);
+      localStorage.removeItem(storageKeys.biometrics);
+      localStorage.removeItem(storageKeys.medications);
+      localStorage.removeItem(storageKeys.medicationLogs);
+    } catch (err) {
+      console.error("Migration failed:", err);
+    }
   }, [user, supabase]);
 
   // ── Автоматическая миграция при входе ──
