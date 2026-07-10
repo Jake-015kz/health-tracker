@@ -36,7 +36,7 @@
   z-index: 1;
   width: 100%;
   max-width: 400px;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.3);
@@ -44,6 +44,16 @@
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   padding: var(--space-2xl);
   animation: scaleIn 0.3s ease-out;
+  /* Фикс dark mode: карточка всегда светлая, переопределяем переменные */
+  --color-text: #061f12;
+  --color-text-muted: #6b7280;
+  --color-border: #d1d5db;
+  --color-bg: #ebeeea;
+  --color-primary: #33cb78;
+  --color-primary-hover: #2ba865;
+  --color-primary-dark: #061f12;
+  --color-danger: #e53935;
+  --color-danger-light: #fdecea;
 }
 
 .header {
@@ -90,6 +100,14 @@
   height: 18px;
   color: var(--color-text-muted);
   pointer-events: none;
+}
+
+.label {
+  display: block;
+  margin-bottom: var(--space-xs);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
 }
 
 .input {
