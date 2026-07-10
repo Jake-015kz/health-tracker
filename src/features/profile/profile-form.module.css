@@ -24,3 +24,58 @@
   color: var(--color-success);
   font-weight: var(--font-weight-medium);
 }
+
+.targetSection {
+  padding: var(--space-md);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.targetTitle {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  margin: 0 0 var(--space-sm);
+  color: var(--color-text);
+}
+
+.targetGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-sm);
+}
+
+.targetGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+.targetLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  min-width: 5em;
+}
+
+.targetInput {
+  width: 72px;
+  padding: 4px 8px;
+  font-size: var(--font-size-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-align: center;
+}
+
+.targetInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-glow);
+}
+
+.targetUnit {
+  font-size: 10px;
+  color: var(--color-text-muted);
+}

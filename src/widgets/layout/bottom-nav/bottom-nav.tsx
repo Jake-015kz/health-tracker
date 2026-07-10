@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
 import {
@@ -7,6 +8,7 @@ import {
   Activity,
   Pill,
   Calendar,
+  ClipboardList,
   FileText,
   Download,
   Sun,
@@ -20,6 +22,7 @@ const NAV_ITEMS = [
   { hash: "", label: "Обзор", icon: LayoutDashboard },
   { hash: "log", label: "Измерения", icon: Activity },
   { hash: "medications", label: "Лекарства", icon: Pill },
+  { path: "/dashboard/prescription", label: "Назначения", icon: ClipboardList },
   { hash: "schedule", label: "Расписание", icon: Calendar },
   { hash: "report", label: "Отчёт", icon: FileText },
   { hash: "export", label: "Экспорт", icon: Download },
@@ -58,6 +61,19 @@ export function BottomNav() {
     <nav className={styles.bottomNav}>
       {NAV_ITEMS.map((item) => {
         const Icon = item.icon;
+        if ("path" in item) {
+          const isActive = pathname === item.path;
+          return (
+            <Link
+              key={item.path}
+              href={item.path}
+              className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
+            >
+              <Icon className={styles.navIcon} />
+              <span className={styles.navLabel}>{item.label}</span>
+            </Link>
+          );
+        }
         const isDashboard = pathname === "/dashboard";
         const isActive = isDashboard && currentHash === item.hash;
         return (

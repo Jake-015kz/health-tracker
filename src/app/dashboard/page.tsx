@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 
-import { useAuth, useDataStore } from "@/features/auth";
+import { useAuth } from "@/features/auth";
+import { useDataStoreContext } from "@/features/auth/data-store-context";
 import { LogMetrics } from "@/features/log-metrics";
 import { MedicationChecklist } from "@/features/medication-checklist";
 import { ExportData } from "@/features/export-data";
@@ -41,7 +42,7 @@ function getTabFromHash(): TabId {
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const { user } = useAuth();
-  const store = useDataStore(user);
+  const store = useDataStoreContext();
 
   useEffect(() => {
     setActiveTab(getTabFromHash());

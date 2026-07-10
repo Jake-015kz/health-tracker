@@ -39,6 +39,12 @@ export function ProfileForm({ user }: ProfileFormProps) {
           doctorName: data.doctor_name ?? "",
           doctorPhone: data.doctor_phone ?? "",
           notes: data.notes ?? "",
+          targetSystolic: data.target_systolic ?? undefined,
+          targetDiastolic: data.target_diastolic ?? undefined,
+          targetPulseLow: data.target_pulse_low ?? undefined,
+          targetPulseHigh: data.target_pulse_high ?? undefined,
+          targetSugarLow: data.target_sugar_low ?? undefined,
+          targetSugarHigh: data.target_sugar_high ?? undefined,
         });
       }
       setLoading(false);
@@ -56,7 +62,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
       .eq("user_id", user.id)
       .single();
 
-    const row = {
+    const row: Record<string, unknown> = {
       user_id: user.id,
       full_name: profile.fullName ?? "",
       birth_date: profile.birthDate || null,
@@ -66,6 +72,12 @@ export function ProfileForm({ user }: ProfileFormProps) {
       doctor_name: profile.doctorName || null,
       doctor_phone: profile.doctorPhone || null,
       notes: profile.notes || null,
+      target_systolic: profile.targetSystolic ?? null,
+      target_diastolic: profile.targetDiastolic ?? null,
+      target_pulse_low: profile.targetPulseLow ?? null,
+      target_pulse_high: profile.targetPulseHigh ?? null,
+      target_sugar_low: profile.targetSugarLow ?? null,
+      target_sugar_high: profile.targetSugarHigh ?? null,
       updated_at: new Date().toISOString(),
     };
 
@@ -145,6 +157,80 @@ export function ProfileForm({ user }: ProfileFormProps) {
             value={profile.notes ?? ""}
             onChange={(e) => setProfile({ ...profile, notes: e.target.value })}
           />
+
+          <div className={styles.targetSection}>
+            <h3 className={styles.targetTitle}>Целевые показатели</h3>
+            <div className={styles.targetGrid}>
+              <div className={styles.targetGroup}>
+                <span className={styles.targetLabel}>АД систолическое</span>
+                <input
+                  type="number"
+                  className={styles.targetInput}
+                  placeholder="130"
+                  value={profile.targetSystolic ?? ""}
+                  onChange={(e) => setProfile({ ...profile, targetSystolic: e.target.value ? Number(e.target.value) : undefined })}
+                />
+                <span className={styles.targetUnit}>мм рт.ст.</span>
+              </div>
+              <div className={styles.targetGroup}>
+                <span className={styles.targetLabel}>АД диастолическое</span>
+                <input
+                  type="number"
+                  className={styles.targetInput}
+                  placeholder="80"
+                  value={profile.targetDiastolic ?? ""}
+                  onChange={(e) => setProfile({ ...profile, targetDiastolic: e.target.value ? Number(e.target.value) : undefined })}
+                />
+                <span className={styles.targetUnit}>мм рт.ст.</span>
+              </div>
+              <div className={styles.targetGroup}>
+                <span className={styles.targetLabel}>Пульс от</span>
+                <input
+                  type="number"
+                  className={styles.targetInput}
+                  placeholder="60"
+                  value={profile.targetPulseLow ?? ""}
+                  onChange={(e) => setProfile({ ...profile, targetPulseLow: e.target.value ? Number(e.target.value) : undefined })}
+                />
+                <span className={styles.targetUnit}>уд/мин</span>
+              </div>
+              <div className={styles.targetGroup}>
+                <span className={styles.targetLabel}>Пульс до</span>
+                <input
+                  type="number"
+                  className={styles.targetInput}
+                  placeholder="75"
+                  value={profile.targetPulseHigh ?? ""}
+                  onChange={(e) => setProfile({ ...profile, targetPulseHigh: e.target.value ? Number(e.target.value) : undefined })}
+                />
+                <span className={styles.targetUnit}>уд/мин</span>
+              </div>
+              <div className={styles.targetGroup}>
+                <span className={styles.targetLabel}>Сахар от</span>
+                <input
+                  type="number"
+                  step="0.1"
+                  className={styles.targetInput}
+                  placeholder="7.0"
+                  value={profile.targetSugarLow ?? ""}
+                  onChange={(e) => setProfile({ ...profile, targetSugarLow: e.target.value ? Number(e.target.value) : undefined })}
+                />
+                <span className={styles.targetUnit}>ммоль/л</span>
+              </div>
+              <div className={styles.targetGroup}>
+                <span className={styles.targetLabel}>Сахар до</span>
+                <input
+                  type="number"
+                  step="0.1"
+                  className={styles.targetInput}
+                  placeholder="11.0"
+                  value={profile.targetSugarHigh ?? ""}
+                  onChange={(e) => setProfile({ ...profile, targetSugarHigh: e.target.value ? Number(e.target.value) : undefined })}
+                />
+                <span className={styles.targetUnit}>ммоль/л</span>
+              </div>
+            </div>
+          </div>
 
           <div className={styles.actions}>
             {saved && <span className={styles.saved}>Сохранено!</span>}

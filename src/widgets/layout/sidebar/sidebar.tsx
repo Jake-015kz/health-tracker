@@ -8,6 +8,7 @@ import {
   Activity,
   Pill,
   Calendar,
+  ClipboardList,
   FileText,
   Download,
   LogOut,
@@ -27,6 +28,7 @@ const NAV_ITEMS = [
   { hash: "log", label: "Измерения", icon: Activity },
   { hash: "medications", label: "Лекарства", icon: Pill },
   { hash: "schedule", label: "Расписание", icon: Calendar },
+  { path: "/dashboard/prescription", label: "Назначения", icon: ClipboardList },
   { hash: "report", label: "Отчёт", icon: FileText },
   { hash: "export", label: "Экспорт", icon: Download },
   { hash: "profile", label: "Профиль", icon: User },
@@ -73,13 +75,26 @@ export function Sidebar() {
       <nav className={styles.nav}>
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
+          if ("path" in item) {
+            const isActive = pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                href={item.path}
+                className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
+              >
+                <Icon className={styles.navIcon} />
+                <span className={styles.navLabel}>{item.label}</span>
+              </Link>
+            );
+          }
           const isDashboard = pathname === "/dashboard";
           const isActive = isDashboard && currentHash === item.hash;
           return (
             <a
               key={item.hash}
               href={`/dashboard${item.hash ? `#${item.hash}` : ""}`}
-              onClick={(e) => handleNavClick(e, item.hash)}
+              onClick={(e) => handleNavClick(e, item.hash!)}
               className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
             >
               <Icon className={styles.navIcon} />

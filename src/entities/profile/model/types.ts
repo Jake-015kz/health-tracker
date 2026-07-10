@@ -9,6 +9,12 @@ export interface PatientProfile {
   doctorName?: string;
   doctorPhone?: string;
   notes?: string;
+  targetSystolic?: number;
+  targetDiastolic?: number;
+  targetPulseLow?: number;
+  targetPulseHigh?: number;
+  targetSugarLow?: number;
+  targetSugarHigh?: number;
   createdAt: string;
   updatedAt: string;
 }
