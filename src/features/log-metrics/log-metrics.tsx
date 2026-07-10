@@ -1,14 +1,16 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { isWithinInterval, parseISO, startOfDay, endOfDay } from "date-fns";
 
 import type { BiometricEntry } from "@/entities/biometrics";
 import { biometricEntrySchema, type BiometricEntryFormData } from "@/entities/biometrics/lib/validators";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
+import { DatePicker } from "@/shared/ui/date-picker/date-picker";
 import {
   getTodayString,
   isCriticalBloodPressure,
@@ -34,6 +36,7 @@ export function LogMetrics({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [dateFilter, setDateFilter] = useState<{ from: Date; to: Date } | null>(null);
 
   const editingEntry = editingId ? biometrics.find((e) => e.id === editingId) ?? null : null;
 
@@ -155,6 +158,16 @@ export function LogMetrics({
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
   );
 
+  const filteredEntries = useMemo(() => {
+    if (!dateFilter?.from) return sortedEntries;
+    const from = startOfDay(dateFilter.from);
+    const to = endOfDay(dateFilter.to ?? dateFilter.from);
+    return sortedEntries.filter((e) => {
+      const d = parseISO(e.date);
+      return isWithinInterval(d, { start: from, end: to });
+    });
+  }, [sortedEntries, dateFilter]);
+
   return (
     <div className={styles.container}>
       <Card>
@@ -259,14 +272,30 @@ export function LogMetrics({
         </CardContent>
       </Card>
 
-      {sortedEntries.length > 0 && (
+      {filteredEntries.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>История измерений</CardTitle>
+            <div className={styles.historyHeader}>
+              <CardTitle>История измерений</CardTitle>
+              <DatePicker
+                mode="range"
+                value={dateFilter}
+                onChange={(v) => setDateFilter(v as { from: Date; to: Date } | null)}
+                placeholder="Фильтр по датам"
+              />
+              {dateFilter && (
+                <button
+                  className={styles.clearFilter}
+                  onClick={() => setDateFilter(null)}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           </CardHeader>
           <CardContent>
             <div className={styles.historyList}>
-              {sortedEntries.map((entry) => (
+              {filteredEntries.map((entry) => (
                 <div
                   key={entry.id}
                   className={`${styles.historyItem} ${editingId === entry.id ? styles.historyItemActive : ""}`}

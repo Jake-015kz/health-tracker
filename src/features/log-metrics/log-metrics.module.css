@@ -180,6 +180,33 @@
   color: var(--color-danger) !important;
 }
 
+.historyHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.clearFilter {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.clearFilter:hover {
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+}
+
 .label {
   display: block;
   margin-bottom: var(--space-xs);

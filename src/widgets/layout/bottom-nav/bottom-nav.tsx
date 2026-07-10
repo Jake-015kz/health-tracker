@@ -2,7 +2,17 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, useCallback } from "react";
-import { LayoutDashboard, Activity, Pill, FileText, Download } from "lucide-react";
+import {
+  LayoutDashboard,
+  Activity,
+  Pill,
+  Calendar,
+  FileText,
+  Download,
+  Sun,
+  Moon,
+} from "lucide-react";
+import { useTheme } from "@/shared/lib/theme-context";
 
 import styles from "./bottom-nav.module.css";
 
@@ -10,6 +20,7 @@ const NAV_ITEMS = [
   { hash: "", label: "Обзор", icon: LayoutDashboard },
   { hash: "log", label: "Измерения", icon: Activity },
   { hash: "medications", label: "Лекарства", icon: Pill },
+  { hash: "schedule", label: "Расписание", icon: Calendar },
   { hash: "report", label: "Отчёт", icon: FileText },
   { hash: "export", label: "Экспорт", icon: Download },
 ] as const;
@@ -18,6 +29,7 @@ export function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
   const [currentHash, setCurrentHash] = useState("");
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const updateHash = () => {
@@ -60,6 +72,18 @@ export function BottomNav() {
           </a>
         );
       })}
+        <button
+          className={styles.themeToggle}
+          onClick={(e) => { e.preventDefault(); toggleTheme(); }}
+          title={theme === "light" ? "Тёмная тема" : "Светлая тема"}
+        >
+          {theme === "light" ? (
+            <Moon className={styles.navIcon} />
+          ) : (
+            <Sun className={styles.navIcon} />
+          )}
+          <span className={styles.navLabel}>Тема</span>
+        </button>
     </nav>
   );
 }

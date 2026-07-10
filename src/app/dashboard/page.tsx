@@ -16,6 +16,7 @@ import {
   requestNotificationPermission,
   scheduleMedicationReminders,
 } from "@/shared/lib/notifications";
+import { QuickLog } from "@/features/quick-log/quick-log";
 
 import styles from "./page.module.css";
 
@@ -144,6 +145,7 @@ export default function DashboardPage() {
           <ProfileForm user={user} />
         )}
       </div>
+      <QuickLog onAdd={store.addBiometric} />
     </main>
   );
 }

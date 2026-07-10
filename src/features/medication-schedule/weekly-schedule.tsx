@@ -1,28 +1,26 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { startOfWeek, endOfWeek, addWeeks, subWeeks, format } from "date-fns";
+import { ru } from "date-fns/locale";
 
 import type { Medication, MedicationTime } from "@/entities/medication";
 import { TIME_LABELS, TIME_ICONS } from "@/entities/medication";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/ui/card";
+import { DatePicker } from "@/shared/ui/date-picker/date-picker";
 import { getTodayString } from "@/shared/lib/constants";
 
 import styles from "./weekly-schedule.module.css";
 
 const TIME_ORDER: MedicationTime[] = ["morning", "afternoon", "evening"];
-
 const DAY_LABELS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 
-function getDateRange(): string[] {
-  const today = new Date();
-  const monday = new Date(today);
-  const day = monday.getDay();
-  const diff = day === 0 ? -6 : 1 - day;
-  monday.setDate(monday.getDate() + diff);
+function getWeekDates(from: Date): string[] {
   const dates: string[] = [];
   for (let i = 0; i < 7; i++) {
-    const d = new Date(monday);
+    const d = new Date(from);
     d.setDate(d.getDate() + i);
     dates.push(d.toISOString().split("T")[0]);
   }
@@ -50,7 +48,12 @@ export function WeeklySchedule({
   onUpdateMedication,
   onSkipMedication,
 }: WeeklyScheduleProps) {
-  const weekDates = useMemo(() => getDateRange(), []);
+  const [weekStart, setWeekStart] = useState(() => {
+    const today = new Date();
+    return startOfWeek(today, { weekStartsOn: 1 });
+  });
+  const weekEnd = useMemo(() => endOfWeek(weekStart, { weekStartsOn: 1 }), [weekStart]);
+  const weekDates = useMemo(() => getWeekDates(weekStart), [weekStart]);
   const [selectedCell, setSelectedCell] = useState<{ date: string; time: MedicationTime } | null>(null);
 
   const getMedsForCell = (date: string, time: MedicationTime) => {
@@ -95,10 +98,44 @@ export function WeeklySchedule({
     (m) => !m.groupId,
   );
 
+  const weekLabel = useMemo(
+    () =>
+      `${format(weekStart, "d MMM", { locale: ru })} — ${format(weekEnd, "d MMM yyyy", { locale: ru })}`,
+    [weekStart, weekEnd],
+  );
+
+  const goPrevWeek = useCallback(() => setWeekStart((w) => subWeeks(w, 1)), []);
+  const goNextWeek = useCallback(() => setWeekStart((w) => addWeeks(w, 1)), []);
+  const goThisWeek = useCallback(() => {
+    setWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }));
+  }, []);
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Расписание на неделю</CardTitle>
+        <div className={styles.headerRow}>
+          <CardTitle>Расписание на неделю</CardTitle>
+          <div className={styles.weekNav}>
+            <button className={styles.weekNavBtn} onClick={goPrevWeek} title="Предыдущая неделя">
+              <ChevronLeft size={18} />
+            </button>
+            <button className={styles.weekNavBtn} onClick={goThisWeek} title="Эта неделя">
+              <span className={styles.weekLabel}>{weekLabel}</span>
+            </button>
+            <button className={styles.weekNavBtn} onClick={goNextWeek} title="Следующая неделя">
+              <ChevronRight size={18} />
+            </button>
+            <DatePicker
+              mode="range"
+              value={{ from: weekStart, to: weekEnd }}
+              onChange={(v) => {
+                if (v && "from" in v && v.from) {
+                  setWeekStart(startOfWeek(v.from, { weekStartsOn: 1 }));
+                }
+              }}
+            />
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <div className={styles.grid}>

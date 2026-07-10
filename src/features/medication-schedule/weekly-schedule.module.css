@@ -142,6 +142,58 @@
   color: var(--color-danger);
 }
 
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.weekNav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.weekNavBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.weekNavBtn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.weekLabel {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  padding: 0 var(--space-sm);
+}
+
+[data-theme="dark"] .cell:hover {
+  background-color: #1a2e20;
+}
+
+[data-theme="dark"] .cellToday {
+  background-color: rgba(51, 203, 120, 0.1);
+}
+
+[data-theme="dark"] .cellSelected {
+  background-color: rgba(51, 203, 120, 0.15);
+}
+
 @media (max-width: 768px) {
   .grid {
     grid-template-columns: 60px repeat(7, 1fr);

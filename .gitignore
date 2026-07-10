@@ -44,3 +44,6 @@ next-env.d.ts
 # agent files
 AGENT.md
 .mimocode/
+
+# supabase temp files
+supabase/.temp/
