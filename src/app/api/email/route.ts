@@ -1,4 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: NextRequest) {
   const { to, subject, body } = await request.json();
@@ -7,19 +10,23 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
-  // Здесь подключается email-сервис (Resend, SendGrid, Nodemailer и т.д.)
-  // Пример с Resend:
-  //
-  // import { Resend } from "resend";
-  // const resend = new Resend(process.env.RESEND_API_KEY);
-  // await resend.emails.send({
-  //   from: "Health Tracker <noreply@yourdomain.com>",
-  //   to,
-  //   subject,
-  //   html: body,
-  // });
+  try {
+    const { data, error } = await resend.emails.send({
+      from: "Health Tracker <onboarding@resend.dev>",
+      to,
+      subject,
+      html: body,
+    });
 
-  console.log("Email would be sent:", { to, subject, bodyLength: body.length });
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
-  return NextResponse.json({ success: true, message: "Email sending not configured yet. Set up RESEND_API_KEY or similar." });
+    return NextResponse.json({ success: true, id: data?.id });
+  } catch (err) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Failed to send email" },
+      { status: 500 },
+    );
+  }
 }
