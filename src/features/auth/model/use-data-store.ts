@@ -17,6 +17,18 @@ export function useDataStore(user: User | null) {
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
+  // ── Гарантия наличия профиля ──
+  const ensureProfile = useCallback(async () => {
+    if (!user) return;
+    const { data } = await supabase.from("profiles").select("id").eq("id", user.id).single();
+    if (!data) {
+      await supabase.from("profiles").insert({
+        id: user.id,
+        display_name: user.user_metadata?.display_name ?? user.email?.split("@")[0] ?? "",
+      });
+    }
+  }, [user, supabase]);
+
   // ── Загрузка данных ──
   useEffect(() => {
     if (!user) {
@@ -29,6 +41,8 @@ export function useDataStore(user: User | null) {
     }
 
     const loadFromSupabase = async () => {
+      await ensureProfile();
+
       const [bioRes, medRes, logRes] = await Promise.all([
         supabase.from("biometric_entries").select("*").eq("user_id", user.id),
         supabase.from("medications").select("*").eq("user_id", user.id),
