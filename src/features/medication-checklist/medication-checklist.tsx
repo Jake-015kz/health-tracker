@@ -134,31 +134,39 @@ export function MedicationChecklist({
 
   const addMedication = async () => {
     if (!newName.trim() || !newDosage.trim() || newFrequency.length === 0) return;
-    await onAddMedication({
-      name: newName.trim(),
-      dosage: newDosage.trim(),
-      frequency: newFrequency,
-      isActive: true,
-    });
-    resetForm();
+    try {
+      await onAddMedication({
+        name: newName.trim(),
+        dosage: newDosage.trim(),
+        frequency: newFrequency,
+        isActive: true,
+      });
+      resetForm();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Ошибка сохранения");
+    }
   };
 
   const addPreset = async (preset: MedicationPreset) => {
-    await onAddMedication({
-      name: preset.name,
-      dosage: preset.dosage,
-      frequency: preset.frequency as MedicationTime[],
-      isActive: true,
-      activeIngredient: preset.activeIngredient,
-      purpose: preset.purpose,
-      stopRule: preset.stopRule,
-      isConditional: preset.isConditional,
-      conditionText: preset.conditionText,
-      isFromHospital: preset.isFromHospital,
-      prescriptionType: preset.prescriptionType,
-      groupId: preset.groupId,
-    });
-    setShowPresets(false);
+    try {
+      await onAddMedication({
+        name: preset.name,
+        dosage: preset.dosage,
+        frequency: preset.frequency as MedicationTime[],
+        isActive: true,
+        activeIngredient: preset.activeIngredient,
+        purpose: preset.purpose,
+        stopRule: preset.stopRule,
+        isConditional: preset.isConditional,
+        conditionText: preset.conditionText,
+        isFromHospital: preset.isFromHospital,
+        prescriptionType: preset.prescriptionType,
+        groupId: preset.groupId,
+      });
+      setShowPresets(false);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Ошибка сохранения");
+    }
   };
 
   const startEdit = (med: Medication) => {
@@ -171,12 +179,16 @@ export function MedicationChecklist({
 
   const saveEdit = async () => {
     if (!editingMed || !newName.trim() || !newDosage.trim() || newFrequency.length === 0) return;
-    await _onUpdateMedication(editingMed.id, {
-      name: newName.trim(),
-      dosage: newDosage.trim(),
-      frequency: newFrequency,
-    });
-    resetForm();
+    try {
+      await _onUpdateMedication(editingMed.id, {
+        name: newName.trim(),
+        dosage: newDosage.trim(),
+        frequency: newFrequency,
+      });
+      resetForm();
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Ошибка обновления");
+    }
   };
 
   const resetForm = () => {
@@ -189,8 +201,12 @@ export function MedicationChecklist({
 
   const handleDelete = async (id: string) => {
     if (deleteConfirm === id) {
-      await onDeleteMedication(id);
-      setDeleteConfirm(null);
+      try {
+        await onDeleteMedication(id);
+        setDeleteConfirm(null);
+      } catch (err) {
+        alert(err instanceof Error ? err.message : "Ошибка удаления");
+      }
     } else {
       setDeleteConfirm(id);
     }
@@ -198,14 +214,18 @@ export function MedicationChecklist({
 
   const handleAddAdHoc = async () => {
     if (!newName.trim() || !newDosage.trim() || newFrequency.length === 0) return;
-    await onAddAdHoc({
-      name: newName.trim(),
+    try {
+      await onAddAdHoc({
+        name: newName.trim(),
       dosage: newDosage.trim(),
       time: newFrequency[0],
       date: today,
-    });
-    resetForm();
-    setShowAdHocForm(false);
+      });
+      resetForm();
+      setShowAdHocForm(false);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Ошибка сохранения");
+    }
   };
 
   const renderMedItem = (

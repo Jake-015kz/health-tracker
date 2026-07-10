@@ -35,6 +35,7 @@ export function LogMetrics({
   onCancelEdit,
 }: LogMetricsProps) {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
     register,
@@ -82,17 +83,24 @@ export function LogMetrics({
         notes: data.notes,
       };
 
-      if (editingEntry) {
-        await onUpdate(editingEntry.id, entryData);
-        setSuccessMessage("Измерение обновлено!");
-      } else {
-        await onAdd(entryData);
-        setSuccessMessage("Измерение успешно сохранено!");
-      }
+      try {
+        if (editingEntry) {
+          await onUpdate(editingEntry.id, entryData);
+          setSuccessMessage("Измерение обновлено!");
+        } else {
+          await onAdd(entryData);
+          setSuccessMessage("Измерение успешно сохранено!");
+        }
 
-      reset({ date: getTodayString(), timeOfDay: "morning" });
-      onCancelEdit?.();
-      setTimeout(() => setSuccessMessage(null), 3000);
+        reset({ date: getTodayString(), timeOfDay: "morning" });
+        onCancelEdit?.();
+        setTimeout(() => setSuccessMessage(null), 3000);
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Неизвестная ошибка";
+        setSuccessMessage(null);
+        setSubmitError(msg);
+        setTimeout(() => setSubmitError(null), 5000);
+      }
     },
     [onAdd, onUpdate, editingEntry, reset, onCancelEdit],
   );
@@ -181,6 +189,7 @@ export function LogMetrics({
           />
 
           {successMessage && <div className={styles.successMessage}>{successMessage}</div>}
+          {submitError && <div className={styles.errorMessage}>{submitError}</div>}
 
           <div className={styles.actions}>
             {editingEntry && (

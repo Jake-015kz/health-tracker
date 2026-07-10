@@ -180,7 +180,7 @@ export function useDataStore(user: User | null) {
       };
 
       if (user) {
-        await supabase.from("biometric_entries").insert({
+        const { error } = await supabase.from("biometric_entries").insert({
           id: newEntry.id,
           user_id: user.id,
           date: newEntry.date,
@@ -191,6 +191,10 @@ export function useDataStore(user: User | null) {
           blood_sugar: newEntry.bloodSugar,
           notes: newEntry.notes,
         });
+        if (error) {
+          console.error("Failed to save biometric to Supabase:", error);
+          throw new Error(`Ошибка сохранения: ${error.message}`);
+        }
       } else {
         saveToStorage(storageKeys.biometrics, [...biometrics, newEntry]);
       }
@@ -204,7 +208,7 @@ export function useDataStore(user: User | null) {
   const updateBiometric = useCallback(
     async (id: string, updates: Partial<BiometricEntry>) => {
       if (user) {
-        await supabase
+        const { error } = await supabase
           .from("biometric_entries")
           .update({
             date: updates.date,
@@ -216,6 +220,10 @@ export function useDataStore(user: User | null) {
             notes: updates.notes,
           })
           .eq("id", id);
+        if (error) {
+          console.error("Failed to update biometric:", error);
+          throw new Error(`Ошибка обновления: ${error.message}`);
+        }
       } else {
         const updated = biometrics.map((e) => (e.id === id ? { ...e, ...updates } : e));
         saveToStorage(storageKeys.biometrics, updated);
@@ -229,7 +237,11 @@ export function useDataStore(user: User | null) {
   const deleteBiometric = useCallback(
     async (id: string) => {
       if (user) {
-        await supabase.from("biometric_entries").delete().eq("id", id);
+        const { error } = await supabase.from("biometric_entries").delete().eq("id", id);
+        if (error) {
+          console.error("Failed to delete biometric:", error);
+          throw new Error(`Ошибка удаления: ${error.message}`);
+        }
       } else {
         saveToStorage(
           storageKeys.biometrics,
@@ -252,7 +264,7 @@ export function useDataStore(user: User | null) {
       };
 
       if (user) {
-        await supabase.from("medications").insert({
+        const { error } = await supabase.from("medications").insert({
           id: newMed.id,
           user_id: user.id,
           name: newMed.name,
@@ -269,6 +281,10 @@ export function useDataStore(user: User | null) {
           is_active: newMed.isActive,
           group_id: newMed.groupId,
         });
+        if (error) {
+          console.error("Failed to save medication to Supabase:", error);
+          throw new Error(`Ошибка сохранения лекарства: ${error.message}`);
+        }
       } else {
         saveToStorage(storageKeys.medications, [...medications, newMed]);
       }
@@ -282,7 +298,7 @@ export function useDataStore(user: User | null) {
   const updateMedication = useCallback(
     async (id: string, updates: Partial<Medication>) => {
       if (user) {
-        await supabase
+        const { error } = await supabase
           .from("medications")
           .update({
             name: updates.name,
@@ -300,6 +316,10 @@ export function useDataStore(user: User | null) {
             group_id: updates.groupId,
           })
           .eq("id", id);
+        if (error) {
+          console.error("Failed to update medication:", error);
+          throw new Error(`Ошибка обновления лекарства: ${error.message}`);
+        }
       } else {
         const updated = medications.map((m) => (m.id === id ? { ...m, ...updates } : m));
         saveToStorage(storageKeys.medications, updated);
@@ -313,7 +333,11 @@ export function useDataStore(user: User | null) {
   const deleteMedication = useCallback(
     async (id: string) => {
       if (user) {
-        await supabase.from("medications").delete().eq("id", id);
+        const { error } = await supabase.from("medications").delete().eq("id", id);
+        if (error) {
+          console.error("Failed to delete medication:", error);
+          throw new Error(`Ошибка удаления лекарства: ${error.message}`);
+        }
       } else {
         saveToStorage(
           storageKeys.medications,
@@ -338,13 +362,17 @@ export function useDataStore(user: User | null) {
       if (existing) {
         const newIsTaken = !existing.isTaken;
         if (user) {
-          await supabase
+          const { error } = await supabase
             .from("medication_logs")
             .update({
               is_taken: newIsTaken,
               taken_at: newIsTaken ? new Date().toISOString() : null,
             })
             .eq("id", existing.id);
+          if (error) {
+            console.error("Failed to update medication log:", error);
+            throw new Error(`Ошибка обновления лога: ${error.message}`);
+          }
         } else {
           const updated = medicationLogs.map((l) =>
             l.id === existing.id
@@ -380,7 +408,7 @@ export function useDataStore(user: User | null) {
         };
 
         if (user) {
-          await supabase.from("medication_logs").insert({
+          const { error } = await supabase.from("medication_logs").insert({
             id: newLog.id,
             user_id: user.id,
             medication_id: newLog.medicationId,
@@ -389,6 +417,10 @@ export function useDataStore(user: User | null) {
             taken_at: newLog.takenAt,
             date: newLog.date,
           });
+          if (error) {
+            console.error("Failed to save medication log:", error);
+            throw new Error(`Ошибка сохранения лога: ${error.message}`);
+          }
         } else {
           saveToStorage(storageKeys.medicationLogs, [...medicationLogs, newLog]);
         }
@@ -410,7 +442,7 @@ export function useDataStore(user: User | null) {
       };
 
       if (user) {
-        await supabase.from("ad_hoc_medications").insert({
+        const { error } = await supabase.from("ad_hoc_medications").insert({
           id: newMed.id,
           user_id: user.id,
           name: newMed.name,
@@ -418,6 +450,10 @@ export function useDataStore(user: User | null) {
           time_of_day: newMed.time,
           date: newMed.date,
         });
+        if (error) {
+          console.error("Failed to save ad-hoc medication:", error);
+          throw new Error(`Ошибка сохранения: ${error.message}`);
+        }
       } else {
         saveToStorage(storageKeys.adHocMedications, [...adHocMedications, newMed]);
       }
@@ -436,13 +472,17 @@ export function useDataStore(user: User | null) {
       const newIsTaken = !existing.isTaken;
 
       if (user) {
-        await supabase
+        const { error } = await supabase
           .from("ad_hoc_medications")
           .update({
             is_taken: newIsTaken,
             taken_at: newIsTaken ? new Date().toISOString() : null,
           })
           .eq("id", id);
+        if (error) {
+          console.error("Failed to update ad-hoc medication:", error);
+          throw new Error(`Ошибка обновления: ${error.message}`);
+        }
       } else {
         const updated = adHocMedications.map((m) =>
           m.id === id
@@ -474,7 +514,11 @@ export function useDataStore(user: User | null) {
   const deleteAdHocMedication = useCallback(
     async (id: string) => {
       if (user) {
-        await supabase.from("ad_hoc_medications").delete().eq("id", id);
+        const { error } = await supabase.from("ad_hoc_medications").delete().eq("id", id);
+        if (error) {
+          console.error("Failed to delete ad-hoc medication:", error);
+          throw new Error(`Ошибка удаления: ${error.message}`);
+        }
       } else {
         saveToStorage(
           storageKeys.adHocMedications,
